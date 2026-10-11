@@ -115,6 +115,8 @@ class MemoryDb {
   public notifications: Map<string, MockNotification>;
   public reports: Map<string, MockReport>;
 
+  private saveTimer: NodeJS.Timeout | null = null;
+
   private createAutoSaveMap<K, V>(): Map<K, V> {
     const map = new Map<K, V>();
     const originalSet = map.set.bind(map);
@@ -123,22 +125,29 @@ class MemoryDb {
 
     map.set = (key: K, value: V) => {
       const res = originalSet(key, value);
-      this.saveToDisk();
+      this.scheduleSave();
       return res;
     };
 
     map.delete = (key: K) => {
       const res = originalDelete(key);
-      this.saveToDisk();
+      this.scheduleSave();
       return res;
     };
 
     map.clear = () => {
       originalClear();
-      this.saveToDisk();
+      this.scheduleSave();
     };
 
     return map;
+  }
+
+  public scheduleSave() {
+    if (this.saveTimer) clearTimeout(this.saveTimer);
+    this.saveTimer = setTimeout(() => {
+      this.saveToDisk();
+    }, 100);
   }
 
   constructor() {
@@ -167,7 +176,9 @@ class MemoryDb {
         notifications: Array.from(this.notifications.entries()),
         reports: Array.from(this.reports.entries()),
       };
-      fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+      fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8', (err) => {
+        if (err) console.error('Failed to save store to disk:', err);
+      });
     } catch (err) {
       console.error('Failed to save store to disk:', err);
     }

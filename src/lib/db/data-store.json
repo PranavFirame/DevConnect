@@ -1,0 +1,213 @@
+{
+  "users": [
+    [
+      "usr_admin",
+      {
+        "id": "usr_admin",
+        "email": "admin@devconnect.io",
+        "username": "alexdev",
+        "displayName": "Alex Rivers",
+        "passwordHash": "$2b$10$tpUe0vBgaBULqnI375gIW.ABHPY1yqMPhKxTciNFTnV2oqBIdW/Tu",
+        "bio": "Full-stack architect & open-source contributor.",
+        "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        "githubUrl": "https://github.com/alexrivers",
+        "role": "ADMIN",
+        "reputation": 285,
+        "createdAt": "2026-10-11T13:49:24.153Z",
+        "updatedAt": "2026-10-11T13:49:24.153Z"
+      }
+    ],
+    [
+      "usr_mod",
+      {
+        "id": "usr_mod",
+        "email": "moderator@devconnect.io",
+        "username": "sarah_codes",
+        "displayName": "Sarah Chen",
+        "passwordHash": "$2b$10$tpUe0vBgaBULqnI375gIW.ABHPY1yqMPhKxTciNFTnV2oqBIdW/Tu",
+        "bio": "Staff Frontend Engineer & React core contributor.",
+        "avatarUrl": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+        "githubUrl": "https://github.com/sarahchen",
+        "role": "MODERATOR",
+        "reputation": 195,
+        "createdAt": "2026-10-11T13:49:24.153Z",
+        "updatedAt": "2026-10-11T13:49:24.153Z"
+      }
+    ],
+    [
+      "usr_dev",
+      {
+        "id": "usr_dev",
+        "email": "marcus@devconnect.io",
+        "username": "marcus_k",
+        "displayName": "Marcus Vance",
+        "passwordHash": "$2b$10$tpUe0vBgaBULqnI375gIW.ABHPY1yqMPhKxTciNFTnV2oqBIdW/Tu",
+        "bio": "Systems programmer exploring Rust and distributed architectures.",
+        "avatarUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        "githubUrl": "https://github.com/marcusv",
+        "role": "USER",
+        "reputation": 80,
+        "createdAt": "2026-10-11T13:49:24.153Z",
+        "updatedAt": "2026-10-11T13:49:24.153Z"
+      }
+    ]
+  ],
+  "tags": [
+    [
+      "tag_react",
+      {
+        "id": "tag_react",
+        "name": "React",
+        "slug": "react",
+        "description": "The library for web and native UIs",
+        "postCount": 1,
+        "createdAt": "2026-10-11T13:49:24.154Z"
+      }
+    ],
+    [
+      "tag_ts",
+      {
+        "id": "tag_ts",
+        "name": "TypeScript",
+        "slug": "typescript",
+        "description": "JavaScript with syntax for types",
+        "postCount": 2,
+        "createdAt": "2026-10-11T13:49:24.155Z"
+      }
+    ],
+    [
+      "tag_next",
+      {
+        "id": "tag_next",
+        "name": "Next.js",
+        "slug": "nextjs",
+        "description": "The React Framework for the Web",
+        "postCount": 1,
+        "createdAt": "2026-10-11T13:49:24.155Z"
+      }
+    ],
+    [
+      "tag_pg",
+      {
+        "id": "tag_pg",
+        "name": "PostgreSQL",
+        "slug": "postgresql",
+        "description": "Open-source object-relational database",
+        "postCount": 1,
+        "createdAt": "2026-10-11T13:49:24.156Z"
+      }
+    ],
+    [
+      "tag_gql",
+      {
+        "id": "tag_gql",
+        "name": "GraphQL",
+        "slug": "graphql",
+        "description": "A query language for your API",
+        "postCount": 1,
+        "createdAt": "2026-10-11T13:49:24.156Z"
+      }
+    ],
+    [
+      "tag_arch",
+      {
+        "id": "tag_arch",
+        "name": "Architecture",
+        "slug": "architecture",
+        "description": "Software design patterns and system design",
+        "postCount": 1,
+        "createdAt": "2026-10-11T13:49:24.156Z"
+      }
+    ]
+  ],
+  "discussions": [
+    [
+      "disc_1",
+      {
+        "id": "disc_1",
+        "title": "Architecting Server Components with GraphQL Yoga in Next.js App Router",
+        "slug": "architecting-server-components-with-graphql-yoga-in-nextjs-app-router",
+        "content": "When building high-performance modern web apps, balancing Next.js Server Components with a flexible GraphQL layer can dramatically streamline state management and payload size.\n\n```typescript\n// GraphQL Yoga Route in Next.js App Router\nexport async function POST(req: Request) {\n  return yoga.handleRequest(req, {});\n}\n```\n\nWhat are your experiences handling cache invalidation between RSC and client GraphQL queries?",
+        "pinned": true,
+        "solved": true,
+        "score": 24,
+        "upvotesCount": 25,
+        "downvotesCount": 1,
+        "commentsCount": 2,
+        "viewsCount": 342,
+        "authorId": "usr_admin",
+        "solvedCommentId": "cmt_2",
+        "tagIds": [
+          "tag_next",
+          "tag_gql",
+          "tag_ts"
+        ],
+        "createdAt": "2026-10-11T08:49:24.157Z",
+        "updatedAt": "2026-10-11T08:49:24.157Z"
+      }
+    ],
+    [
+      "disc_2",
+      {
+        "id": "disc_2",
+        "title": "PostgreSQL Full-Text Search vs External Search Engines: When to Switch?",
+        "slug": "postgresql-full-text-search-vs-external-search-engines",
+        "content": "Many teams jump directly to Elasticsearch or Algolia before exhausting PostgreSQL's native capabilities. \n\nWith `tsvector` and GIN indexes, PostgreSQL easily handles hundreds of thousands of documents with sub-10ms query times.\n\n```sql\nCREATE INDEX idx_discussions_search ON \"Discussion\"\nUSING gin(to_tsvector('english', title || ' ' || content));\n```\n\nHow are you handling typo tolerance and ranking in PostgreSQL?",
+        "pinned": false,
+        "solved": false,
+        "score": 18,
+        "upvotesCount": 18,
+        "downvotesCount": 0,
+        "commentsCount": 1,
+        "viewsCount": 215,
+        "authorId": "usr_dev",
+        "tagIds": [
+          "tag_pg",
+          "tag_arch"
+        ],
+        "createdAt": "2026-10-11T01:49:24.157Z",
+        "updatedAt": "2026-10-11T01:49:24.157Z"
+      }
+    ]
+  ],
+  "comments": [
+    [
+      "cmt_1",
+      {
+        "id": "cmt_1",
+        "content": "Great writeup! For cache invalidation between RSC and GraphQL, we've had good success calling Next.js revalidateTag or revalidatePath right inside GraphQL mutations whenever mutations touch modified entities.",
+        "score": 8,
+        "upvotesCount": 8,
+        "downvotesCount": 0,
+        "depth": 0,
+        "isAccepted": false,
+        "authorId": "usr_mod",
+        "discussionId": "disc_1",
+        "parentId": null,
+        "createdAt": "2026-10-11T10:49:24.159Z",
+        "updatedAt": "2026-10-11T10:49:24.159Z"
+      }
+    ],
+    [
+      "cmt_2",
+      {
+        "id": "cmt_2",
+        "content": "+1 to this. It keeps the frontend reactive without having to manage heavy client caches like Apollo Client. Standard fetch with Next cache tags does wonders!",
+        "score": 5,
+        "upvotesCount": 5,
+        "downvotesCount": 0,
+        "depth": 1,
+        "isAccepted": true,
+        "authorId": "usr_admin",
+        "discussionId": "disc_1",
+        "parentId": "cmt_1",
+        "createdAt": "2026-10-11T11:49:24.159Z",
+        "updatedAt": "2026-10-11T11:49:24.159Z"
+      }
+    ]
+  ],
+  "votes": [],
+  "bookmarks": [],
+  "notifications": [],
+  "reports": []
+}
