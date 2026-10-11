@@ -39,6 +39,14 @@ export default function NewDiscussionPage() {
       setError('Please log in to publish a discussion.');
       return;
     }
+    if (title.trim().length < 5) {
+      setError('Discussion title must be at least 5 characters long.');
+      return;
+    }
+    if (content.trim().length < 10) {
+      setError('Discussion body must be at least 10 characters long.');
+      return;
+    }
     if (tags.length === 0) {
       setError('Please add at least one tag (e.g. #react, #docker).');
       return;

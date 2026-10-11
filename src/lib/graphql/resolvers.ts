@@ -1567,4 +1567,28 @@ export const resolvers = {
       }
     },
   },
+
+  User: {
+    discussionsCount: (parent: { id?: string; discussionsCount?: number; _count?: { discussions: number } }) => {
+      if (typeof parent.discussionsCount === 'number') return parent.discussionsCount;
+      if (parent._count?.discussions !== undefined) return parent._count.discussions;
+      if (parent.id) {
+        return Array.from(memoryDb.discussions.values()).filter((d) => d.authorId === parent.id).length;
+      }
+      return 0;
+    },
+    commentsCount: (parent: { id?: string; commentsCount?: number; _count?: { comments: number } }) => {
+      if (typeof parent.commentsCount === 'number') return parent.commentsCount;
+      if (parent._count?.comments !== undefined) return parent._count.comments;
+      if (parent.id) {
+        return Array.from(memoryDb.comments.values()).filter((c) => c.authorId === parent.id).length;
+      }
+      return 0;
+    },
+    createdAt: (parent: { createdAt?: Date | string }) => {
+      if (!parent.createdAt) return new Date().toISOString();
+      if (typeof parent.createdAt === 'string') return parent.createdAt;
+      return parent.createdAt.toISOString();
+    },
+  },
 };

@@ -106,7 +106,7 @@ function SearchPageContent() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search keywords, syntax, libraries..."
-                className="w-full bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-xl pl-10 pr-4 py-2.5 text-sm font-bold shadow-[2px_2px_0px_0px_#18181b] focus:outline-none"
+                className="w-full bg-[#fbf9f5] dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 border-2 border-zinc-900 dark:border-zinc-700 rounded-xl pl-10 pr-4 py-2.5 text-sm font-bold shadow-[2px_2px_0px_0px_#18181b] focus:outline-none"
               />
             </div>
 
@@ -117,13 +117,13 @@ function SearchPageContent() {
                 value={tag}
                 onChange={(e) => setTag(e.target.value)}
                 placeholder="Tag filter..."
-                className="w-full bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-xl pl-9 pr-3 py-2.5 text-sm font-bold shadow-[2px_2px_0px_0px_#18181b] focus:outline-none"
+                className="w-full bg-[#fbf9f5] dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 border-2 border-zinc-900 dark:border-zinc-700 rounded-xl pl-9 pr-3 py-2.5 text-sm font-bold shadow-[2px_2px_0px_0px_#18181b] focus:outline-none"
               />
             </div>
 
             <button
               type="submit"
-              className="bg-[#42ed91] hover:bg-[#2dd87d] text-white font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-xl brutal-btn"
+              className="bg-[#42ed91] hover:bg-[#2dd87d] text-zinc-900 font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-xl brutal-btn"
             >
               Search
             </button>

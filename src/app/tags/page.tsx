@@ -83,7 +83,7 @@ export default function TagsPage() {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Filter tags..."
-            className="bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-xl px-4 py-2 text-sm font-bold shadow-[2px_2px_0px_0px_#18181b] focus:outline-none"
+            className="bg-[#fbf9f5] dark:bg-zinc-850 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 border-2 border-zinc-900 dark:border-zinc-700 rounded-xl px-4 py-2 text-sm font-bold shadow-[2px_2px_0px_0px_#18181b] focus:outline-none"
           />
         </div>
 
