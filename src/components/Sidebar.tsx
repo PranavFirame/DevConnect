@@ -7,9 +7,7 @@ import {
   Bookmark, 
   TrendingUp, 
   Sparkles,
-  Zap,
-  Flame,
-  ArrowUpRight 
+  ArrowRight
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -18,73 +16,67 @@ interface SidebarProps {
 
 export function Sidebar({ popularTags = [] }: SidebarProps) {
   return (
-    <aside className="w-68 shrink-0 hidden lg:block space-y-5">
-      {/* Navigation Links Card */}
-      <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-2xl p-4 shadow-[3px_3px_0px_0px_#18181b]">
-        <span className="text-[11px] font-black uppercase tracking-wider text-zinc-400 block mb-3 px-2">
-          Navigation
-        </span>
-        <nav className="space-y-1.5">
+    <aside className="w-[260px] shrink-0 hidden lg:block space-y-5">
+      {/* Navigation Card */}
+      <div className="dev-card p-3">
+        <nav className="space-y-0.5">
           <Link
             href="/"
-            className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-zinc-900 dark:text-zinc-100 rounded-xl hover:bg-[#fff4d1] dark:hover:bg-zinc-800 transition-colors"
+            className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-[#17181D] dark:text-[#F3F4F6] rounded-lg bg-[#F0F2F5] dark:bg-[#1E2129] text-[#F45170] transition-colors"
           >
-            <div className="h-7 w-7 rounded-lg bg-[#ffb800] border border-zinc-900 flex items-center justify-center text-zinc-900">
-              <Home className="h-3.5 w-3.5" />
-            </div>
+            <Home className="h-4 w-4 text-[#F45170]" />
             <span>Home</span>
           </Link>
           <Link
             href="/discussions"
-            className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-zinc-900 dark:text-zinc-100 rounded-xl hover:bg-[#ffe5dd] dark:hover:bg-zinc-800 transition-colors"
+            className="flex items-center gap-3 px-3 py-2 text-xs font-medium text-[#697386] dark:text-[#9CA3AF] hover:text-[#17181D] dark:hover:text-white hover:bg-[#F0F2F5] dark:hover:bg-[#1E2129] rounded-lg transition-colors"
           >
-            <div className="h-7 w-7 rounded-lg bg-[#f25774] border border-zinc-900 flex items-center justify-center text-white">
-              <MessageSquare className="h-3.5 w-3.5" />
-            </div>
+            <MessageSquare className="h-4 w-4" />
             <span>Discussions</span>
           </Link>
           <Link
             href="/tags"
-            className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-zinc-900 dark:text-zinc-100 rounded-xl hover:bg-[#fff4d1] dark:hover:bg-zinc-800 transition-colors"
+            className="flex items-center gap-3 px-3 py-2 text-xs font-medium text-[#697386] dark:text-[#9CA3AF] hover:text-[#17181D] dark:hover:text-white hover:bg-[#F0F2F5] dark:hover:bg-[#1E2129] rounded-lg transition-colors"
           >
-            <div className="h-7 w-7 rounded-lg bg-[#38bdf8] border border-zinc-900 flex items-center justify-center text-zinc-900">
-              <Hash className="h-3.5 w-3.5" />
-            </div>
+            <Hash className="h-4 w-4" />
             <span>Explore Tags</span>
           </Link>
           <Link
             href="/bookmarks"
-            className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-zinc-900 dark:text-zinc-100 rounded-xl hover:bg-[#ffe5dd] dark:hover:bg-zinc-800 transition-colors"
+            className="flex items-center gap-3 px-3 py-2 text-xs font-medium text-[#697386] dark:text-[#9CA3AF] hover:text-[#17181D] dark:hover:text-white hover:bg-[#F0F2F5] dark:hover:bg-[#1E2129] rounded-lg transition-colors"
           >
-            <div className="h-7 w-7 rounded-lg bg-[#a78bfa] border border-zinc-900 flex items-center justify-center text-white">
-              <Bookmark className="h-3.5 w-3.5" />
-            </div>
+            <Bookmark className="h-4 w-4" />
             <span>Saved Posts</span>
           </Link>
         </nav>
       </div>
 
-      {/* Trending Topics Widget */}
-      <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-2xl p-4 shadow-[3px_3px_0px_0px_#18181b]">
-        <div className="flex items-center gap-2 mb-3 px-1">
-          <Flame className="h-4 w-4 text-[#f25774]" />
-          <h3 className="font-black text-sm uppercase tracking-wide text-zinc-900 dark:text-white">
-            Hot Topics
-          </h3>
+      {/* Popular Topics Widget */}
+      <div className="dev-card p-4">
+        <div className="flex items-center justify-between mb-3 px-1">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[#17181D] dark:text-white uppercase tracking-wider">
+            <TrendingUp className="h-3.5 w-3.5 text-[#F45170]" />
+            <span>Popular Topics</span>
+          </div>
+          <Link href="/tags" className="text-[11px] font-medium text-[#697386] hover:text-[#F45170]">
+            All
+          </Link>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {popularTags.length > 0 ? (
             popularTags.map((tag) => (
               <Link
                 key={tag.id}
                 href={`/tags/${tag.slug}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-[#fbf9f5] dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border-2 border-zinc-900 dark:border-zinc-600 hover:bg-[#ffb800] hover:text-zinc-900 transition-all shadow-[1.5px_1.5px_0px_0px_#18181b]"
+                className="badge-tag"
               >
                 <span>#{tag.name}</span>
-                <span className="text-[10px] bg-zinc-900 text-white dark:bg-zinc-700 px-1.5 py-0.2 rounded-md font-black">
-                  {tag.postCount}
-                </span>
+                {tag.postCount > 0 && (
+                  <span className="text-[10px] text-[#9CA3AF]">
+                    {tag.postCount}
+                  </span>
+                )}
               </Link>
             ))
           ) : (
@@ -93,7 +85,7 @@ export function Sidebar({ popularTags = [] }: SidebarProps) {
                 <Link
                   key={t}
                   href={`/tags/${t}`}
-                  className="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#fbf9f5] dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border-2 border-zinc-900 hover:bg-[#ffb800] transition-colors"
+                  className="badge-tag"
                 >
                   #{t}
                 </Link>
@@ -103,21 +95,23 @@ export function Sidebar({ popularTags = [] }: SidebarProps) {
         </div>
       </div>
 
-      {/* Community Spotlight / FlowFest Vibe Banner */}
-      <div className="bg-[#fff4d1] dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-2xl p-4 shadow-[3px_3px_0px_0px_#18181b] relative overflow-hidden">
-        <div className="flex items-center gap-2 mb-2 text-zinc-900 dark:text-amber-400">
-          <Zap className="h-4 w-4 text-[#f25774]" />
-          <h4 className="font-black text-xs uppercase tracking-wider">Community First</h4>
+      {/* Community Card */}
+      <div className="dev-card p-4 bg-gradient-to-br from-white to-[#FBF8F9] dark:from-[#16181E] dark:to-[#1A181D]">
+        <div className="flex items-center gap-2 mb-2 text-[#17181D] dark:text-white">
+          <div className="h-6 w-6 rounded-md bg-[#FFEAEF] dark:bg-[#2D1820] flex items-center justify-center text-[#F45170]">
+            <Sparkles className="h-3.5 w-3.5" />
+          </div>
+          <h4 className="font-bold text-xs uppercase tracking-wide">Community</h4>
         </div>
-        <p className="text-xs text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed mb-3">
-          Build together, share real reproducible code, and celebrate peer solutions.
+        <p className="text-xs text-[#697386] dark:text-[#9CA3AF] leading-relaxed mb-3">
+          Build together. Share reproducible code. Learn from the community.
         </p>
         <Link
-          href="/discussions/new"
-          className="inline-flex items-center gap-1.5 text-xs font-black text-zinc-900 bg-white border-2 border-zinc-900 px-3 py-1.5 rounded-lg brutal-btn"
+          href="/discussions"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#F45170] hover:text-[#E63D60] group"
         >
-          <span>Share Knowledge</span>
-          <ArrowUpRight className="h-3.5 w-3.5" />
+          <span>Explore Discussions</span>
+          <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
         </Link>
       </div>
     </aside>

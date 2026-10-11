@@ -86,38 +86,38 @@ function TagDetailInner({ slug }: { slug: string }) {
     <div className="max-w-4xl mx-auto space-y-6">
       <Link
         href="/tags"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>All Tags</span>
       </Link>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+      <div className="dev-card p-6">
         <div className="flex items-center gap-2 mb-2">
-          <span className="px-3 py-1 rounded-md text-sm font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
+          <span className="badge-tag text-xs font-bold py-1 px-3">
             #{tag?.name || slug}
           </span>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-[#697386]">
             {discussions.length} discussions
           </span>
         </div>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-[#697386] mt-2">
           {tag?.description || `Explore questions and conversations about #${slug}.`}
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-28 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
+              <div key={i} className="h-28 rounded-xl bg-slate-200 animate-pulse" />
             ))}
           </div>
         ) : discussions.length > 0 ? (
           discussions.map((d) => <DiscussionCard key={d.id} {...d} />)
         ) : (
-          <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8">
-            <p className="text-sm text-slate-500">No discussions posted with this tag yet.</p>
+          <div className="dev-card text-center py-12 p-8 text-[#697386] text-sm">
+            <p>No discussions posted with this tag yet.</p>
           </div>
         )}
       </div>

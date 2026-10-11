@@ -59,13 +59,13 @@ export default function TagsPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E7EB] pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Hash className="h-6 w-6 text-blue-600" />
+          <h1 className="text-2xl font-extrabold text-[#17181D] flex items-center gap-2">
+            <Hash className="h-6 w-6 text-[#F45170]" />
             <span>Explore Technical Tags</span>
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-[#697386] mt-1">
             Browse through frameworks, languages, databases, and architectural concepts.
           </p>
         </div>
@@ -75,14 +75,14 @@ export default function TagsPage() {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Filter tags..."
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="bg-white border border-[#E5E7EB] rounded-xl px-3.5 py-2 text-sm text-[#17181D] placeholder:text-[#697386] focus:outline-none focus:ring-2 focus:ring-[#F45170]/30 focus:border-[#F45170] transition-all shadow-xs"
         />
       </div>
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="h-28 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
+            <div key={i} className="h-28 rounded-xl bg-slate-200 animate-pulse" />
           ))}
         </div>
       ) : (
@@ -91,23 +91,23 @@ export default function TagsPage() {
             <Link
               key={t.id}
               href={`/tags/${t.slug}`}
-              className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm hover:border-blue-500 transition-all flex flex-col justify-between"
+              className="group dev-card p-4.5 hover:border-[#F45170] transition-all flex flex-col justify-between"
             >
               <div>
-                <span className="inline-block px-2.5 py-1 text-xs font-semibold rounded bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 mb-2">
+                <span className="badge-tag mb-2.5 inline-block">
                   #{t.name}
                 </span>
-                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                <p className="text-xs text-[#697386] line-clamp-2 leading-relaxed">
                   {t.description || 'Community discussion topic.'}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-800/80 mt-3">
-                <span className="flex items-center gap-1 font-medium">
-                  <MessageSquare className="h-3.5 w-3.5" />
+              <div className="flex items-center justify-between text-xs text-[#697386] pt-3 border-t border-[#E5E7EB] mt-3">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <MessageSquare className="h-3.5 w-3.5 text-slate-400" />
                   <span>{t.postCount} posts</span>
                 </span>
-                <span className="text-blue-600 font-semibold text-[11px] group-hover:translate-x-0.5 transition-transform">
+                <span className="text-[#F45170] font-semibold text-[11px] group-hover:translate-x-0.5 transition-transform">
                   Explore →
                 </span>
               </div>

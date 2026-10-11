@@ -1,92 +1,209 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf9f5;
-  --foreground: #18181b;
-  --card: #ffffff;
-  --card-foreground: #18181b;
-  --primary: #f25774;
-  --primary-hover: #e03e5c;
-  --primary-foreground: #ffffff;
-  --secondary: #ffb800;
-  --accent-peach: #ffe5dd;
-  --accent-sun: #fff4d1;
-  --border-bold: #18181b;
-  --muted: #f4f0e6;
-  --muted-foreground: #71717a;
-  --border: #e4decb;
+  --background: #F5F6F8;
+  --foreground: #17181D;
+  --card: #FFFFFF;
+  --card-foreground: #17181D;
+  --primary: #F45170;
+  --primary-hover: #E63D60;
+  --primary-foreground: #FFFFFF;
+  --header-bg: #17181D;
+  --header-text: #FFFFFF;
+  --secondary: #FFBD08;
+  --secondary-foreground: #17181D;
+  --muted: #F0F2F5;
+  --muted-foreground: #697386;
+  --border: #E5E7EB;
+  --border-focus: #F45170;
 }
 
 .dark {
-  --background: #121316;
-  --foreground: #f4f4f5;
-  --card: #1b1d22;
-  --card-foreground: #f4f4f5;
-  --primary: #f25774;
-  --primary-hover: #ff6b85;
-  --primary-foreground: #ffffff;
-  --secondary: #fbb01b;
-  --accent-peach: #2a1b20;
-  --accent-sun: #292415;
-  --border-bold: #3f3f46;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --border: #2e3037;
+  --background: #0E1015;
+  --foreground: #F3F4F6;
+  --card: #16181E;
+  --card-foreground: #F3F4F6;
+  --primary: #F45170;
+  --primary-hover: #FF6584;
+  --primary-foreground: #FFFFFF;
+  --header-bg: #121418;
+  --header-text: #FFFFFF;
+  --secondary: #FFBD08;
+  --secondary-foreground: #17181D;
+  --muted: #1E2129;
+  --muted-foreground: #9CA3AF;
+  --border: #282C37;
+  --border-focus: #F45170;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Neo-brutalist / Festival tactile elevation */
-.brutal-card {
-  border: 2px solid var(--border-bold);
-  box-shadow: 4px 4px 0px 0px var(--border-bold);
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+/* Subtle, refined component elevations */
+.dev-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-.brutal-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px var(--border-bold);
+.dev-card:hover {
+  border-color: #D1D5DB;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.06);
 }
 
-.brutal-btn {
-  border: 2px solid var(--border-bold);
-  box-shadow: 3px 3px 0px 0px var(--border-bold);
-  transition: all 0.1s ease;
+.dark .dev-card:hover {
+  border-color: #374151;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.25);
 }
 
-.brutal-btn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px 0px var(--border-bold);
+/* Primary Coral Button */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--primary);
+  color: #FFFFFF;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
 }
 
-.brutal-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px 0px var(--border-bold);
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 2px 8px rgba(244, 81, 112, 0.35);
 }
 
-.brutal-badge {
-  border: 1.5px solid var(--border-bold);
-  box-shadow: 2px 2px 0px 0px var(--border-bold);
+.btn-primary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #FFFFFF;
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--muted);
+  border-color: #D1D5DB;
+}
+
+.dark .btn-secondary {
+  background-color: var(--card);
+  color: var(--foreground);
+}
+
+.dark .btn-secondary:hover {
+  background-color: var(--muted);
+}
+
+/* Badges */
+.badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 8px;
+  background-color: #F0F2F5;
+  color: #4B5563;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.badge-tag:hover {
+  background-color: #FFEAEF;
+  color: #F45170;
+  border-color: #FFCCD5;
+}
+
+.dark .badge-tag {
+  background-color: #1E2129;
+  color: #9CA3AF;
+}
+
+.dark .badge-tag:hover {
+  background-color: #2D1820;
+  color: #F45170;
+  border-color: #4A1E29;
+}
+
+/* Pinned Amber Badge */
+.badge-pinned {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 6px;
+  background-color: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+/* Solved Emerald Badge */
+.badge-solved {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 6px;
+  background-color: #DCFCE7;
+  color: #15803D;
+  border: 1px solid #BBF7D0;
 }
 
 /* Code block formatting */
 pre {
-  background-color: #121316 !important;
-  color: #f4f4f5 !important;
-  border: 2px solid var(--border-bold);
-  border-radius: 0.75rem;
-  padding: 1rem;
+  background-color: #111318 !important;
+  color: #E5E7EB !important;
+  border: 1px solid #232731;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
   overflow-x: auto;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 0.875rem;
-  box-shadow: 4px 4px 0px 0px var(--border-bold);
+  font-size: 0.8125rem;
+  line-height: 1.6;
 }
 
 code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+/* Hide Next.js dev indicator in development */
+[data-nextjs-toast], 
+#nextjs-dev-overlay, 
+[data-nextjs-dialog-overlay] {
+  display: none !important;
 }

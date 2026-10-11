@@ -48,7 +48,7 @@ export function ThreadedComments({
   onDeleteComment,
 }: ThreadedCommentsProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3.5">
       {comments.map((comment) => (
         <CommentItem
           key={comment.id}
@@ -164,39 +164,39 @@ function CommentItem({
           variables: { commentId: comment.id, reason: reason.trim() },
         }),
       });
-      alert('Report submitted for moderator review. Thank you for keeping DevConnect safe!');
+      alert('Report submitted for moderator review.');
     } catch {
       alert('Failed to submit report.');
     }
   };
 
   return (
-    <div className={`group relative rounded-xl border p-4 transition-all ${
+    <div className={`dev-card p-4 transition-all ${
       comment.isAccepted 
-        ? 'border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/10' 
-        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900'
-    } ${comment.depth > 0 ? 'ml-4 sm:ml-8 mt-3' : ''}`}>
-      {/* Solution Badge */}
+        ? 'border-emerald-300 dark:border-emerald-800 bg-[#F0FDF4] dark:bg-[#062415]/40' 
+        : 'bg-white dark:bg-[#16181E]'
+    } ${comment.depth > 0 ? 'ml-4 sm:ml-8 mt-2.5' : ''}`}>
+      {/* Accepted Solution indicator */}
       {comment.isAccepted && (
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-2">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-2.5">
           <CheckCircle2 className="h-4 w-4" />
           <span>Accepted Solution</span>
         </div>
       )}
 
       {/* Author Header */}
-      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2">
+      <div className="flex items-center justify-between text-xs text-[#697386] dark:text-[#9CA3AF] mb-2">
         <div className="flex items-center gap-2">
           <Link
             href={`/users/${comment.author.username}`}
-            className="flex items-center gap-1.5 font-medium text-slate-800 dark:text-slate-200 hover:text-blue-600"
+            className="flex items-center gap-1.5 font-semibold text-[#17181D] dark:text-[#F3F4F6] hover:text-[#F45170]"
           >
             {comment.author.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={comment.author.avatarUrl}
                 alt={comment.author.displayName}
-                className="h-5 w-5 rounded-full object-cover"
+                className="h-5 w-5 rounded-full object-cover border border-[#E5E7EB] dark:border-[#282C37]"
               />
             ) : null}
             <span>{comment.author.displayName}</span>
@@ -205,15 +205,15 @@ function CommentItem({
           <span>{formatTimeAgo(comment.createdAt)}</span>
         </div>
 
-        {/* Moderation / Solution controls */}
+        {/* Action Controls */}
         <div className="flex items-center gap-2">
           {isDiscussionAuthor && onAcceptSolution && (
             <button
               onClick={() => onAcceptSolution(comment.id)}
-              className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
+              className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-colors ${
                 comment.isAccepted
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 hover:text-emerald-600'
+                  : 'bg-[#F0F2F5] dark:bg-[#1E2129] text-[#697386] hover:text-emerald-600'
               }`}
             >
               {comment.isAccepted ? 'Unmark Solution' : 'Accept Solution'}
@@ -223,10 +223,10 @@ function CommentItem({
           {(isCommentAuthor || canModerate) && onDeleteComment && (
             <button
               onClick={() => {
-                if (confirm('Delete this comment?')) onDeleteComment(comment.id);
+                if (confirm('Delete this reply?')) onDeleteComment(comment.id);
               }}
-              className="text-slate-400 hover:text-rose-600 p-1 rounded"
-              title="Delete Comment"
+              className="text-[#9CA3AF] hover:text-rose-600 p-1 rounded"
+              title="Delete Reply"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -235,8 +235,8 @@ function CommentItem({
           {user && !isCommentAuthor && (
             <button
               onClick={handleReport}
-              className="text-slate-400 hover:text-amber-500 p-1 rounded"
-              title="Report Comment"
+              className="text-[#9CA3AF] hover:text-amber-500 p-1 rounded"
+              title="Report Reply"
             >
               <Flag className="h-3.5 w-3.5" />
             </button>
@@ -244,33 +244,33 @@ function CommentItem({
         </div>
       </div>
 
-      {/* Comment Content */}
-      <div className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed mb-3 whitespace-pre-wrap">
+      {/* Reply Body */}
+      <div className="text-xs sm:text-sm text-[#17181D] dark:text-[#F3F4F6] leading-relaxed mb-3 whitespace-pre-wrap">
         {comment.content}
       </div>
 
-      {/* Vote & Reply Actions */}
-      <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-xs">
-        <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/60 rounded px-1.5 py-0.5">
+      {/* Vote & Reply Buttons */}
+      <div className="flex items-center gap-3 pt-2 border-t border-[#F0F2F5] dark:border-[#20242D] text-xs">
+        <div className="flex items-center gap-1 bg-[#F8F9FA] dark:bg-[#1E2129] rounded-md px-1.5 py-0.5 border border-[#E5E7EB] dark:border-[#282C37]">
           <button
             onClick={() => handleVote('UPVOTE')}
-            className={`p-0.5 rounded ${userVote === 'UPVOTE' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-blue-600'}`}
+            className={`p-0.5 rounded ${userVote === 'UPVOTE' ? 'text-[#F45170] font-bold' : 'text-[#697386] hover:text-[#F45170]'}`}
           >
-            <ChevronUp className="h-4 w-4" />
+            <ChevronUp className="h-3.5 w-3.5 stroke-[2.5]" />
           </button>
-          <span className="font-semibold text-slate-700 dark:text-slate-300">{score}</span>
+          <span className="font-bold text-[#17181D] dark:text-[#F3F4F6] text-xs px-1">{score}</span>
           <button
             onClick={() => handleVote('DOWNVOTE')}
-            className={`p-0.5 rounded ${userVote === 'DOWNVOTE' ? 'text-rose-600 font-bold' : 'text-slate-500 hover:text-rose-600'}`}
+            className={`p-0.5 rounded ${userVote === 'DOWNVOTE' ? 'text-zinc-900 font-bold' : 'text-[#697386] hover:text-zinc-900'}`}
           >
-            <ChevronDown className="h-4 w-4" />
+            <ChevronDown className="h-3.5 w-3.5 stroke-[2.5]" />
           </button>
         </div>
 
         {user && comment.depth < 5 && (
           <button
             onClick={() => setIsReplying(!isReplying)}
-            className="flex items-center gap-1 text-slate-500 hover:text-blue-600 font-medium py-1 px-2 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-1 text-[#697386] hover:text-[#F45170] font-semibold py-1 px-2 rounded-md hover:bg-[#F0F2F5] dark:hover:bg-[#1E2129] transition-colors"
           >
             <CornerDownRight className="h-3.5 w-3.5" />
             <span>Reply</span>
@@ -278,14 +278,14 @@ function CommentItem({
         )}
       </div>
 
-      {/* Reply input field */}
+      {/* Reply Input Box */}
       {isReplying && (
-        <form onSubmit={handleSendReply} className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
+        <form onSubmit={handleSendReply} className="mt-3 pt-3 border-t border-[#E5E7EB] dark:border-[#282C37] space-y-2">
           <textarea
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
             placeholder={`Reply to ${comment.author.displayName}...`}
-            className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full text-xs p-2.5 rounded-lg border border-[#E5E7EB] dark:border-[#282C37] bg-[#F8F9FA] dark:bg-[#1E2129] focus:outline-none focus:border-[#F45170] text-[#17181D] dark:text-white"
             rows={2}
             autoFocus
           />
@@ -293,14 +293,14 @@ function CommentItem({
             <button
               type="button"
               onClick={() => setIsReplying(false)}
-              className="text-xs px-2.5 py-1 text-slate-500 hover:text-slate-700"
+              className="text-xs px-2.5 py-1 text-[#697386] hover:text-[#17181D]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !replyText.trim()}
-              className="text-xs px-3 py-1 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:opacity-50"
+              className="btn-primary py-1 px-3 text-xs font-semibold disabled:opacity-50"
             >
               {isSubmitting ? 'Posting...' : 'Reply'}
             </button>
@@ -308,7 +308,7 @@ function CommentItem({
         </form>
       )}
 
-      {/* Recursive nested child comments */}
+      {/* Nested Replies Tree */}
       {comment.replies && comment.replies.length > 0 && (
         <div className="space-y-2 mt-2">
           {comment.replies.map((child) => (
