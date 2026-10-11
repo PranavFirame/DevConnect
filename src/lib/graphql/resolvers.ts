@@ -1476,6 +1476,70 @@ export const resolvers = {
       return true;
     },
 
+    updateProfile: async (
+      _: unknown,
+      args: {
+        displayName?: string;
+        bio?: string;
+        avatarUrl?: string;
+        githubUrl?: string;
+        websiteUrl?: string;
+      },
+      ctx: GraphQLContext
+    ) => {
+      if (!ctx.currentUser) throw new Error('Authentication required');
+
+      try {
+        const updated = await ctx.prisma.user.update({
+          where: { id: ctx.currentUser.userId },
+          data: {
+            ...(args.displayName !== undefined ? { displayName: args.displayName } : {}),
+            ...(args.bio !== undefined ? { bio: args.bio } : {}),
+            ...(args.avatarUrl !== undefined ? { avatarUrl: args.avatarUrl } : {}),
+            ...(args.githubUrl !== undefined ? { githubUrl: args.githubUrl } : {}),
+            ...(args.websiteUrl !== undefined ? { websiteUrl: args.websiteUrl } : {}),
+          },
+          include: {
+            _count: {
+              select: { discussions: true, comments: true },
+            },
+          },
+        });
+
+        return {
+          ...updated,
+          discussionsCount: updated._count.discussions,
+          commentsCount: updated._count.comments,
+          createdAt: updated.createdAt.toISOString(),
+        };
+      } catch {
+        // MemoryDb Fallback
+        const user = memoryDb.users.get(ctx.currentUser.userId);
+        if (!user) throw new Error('User not found');
+
+        if (args.displayName !== undefined) user.displayName = args.displayName;
+        if (args.bio !== undefined) user.bio = args.bio;
+        if (args.avatarUrl !== undefined) user.avatarUrl = args.avatarUrl;
+        if (args.githubUrl !== undefined) user.githubUrl = args.githubUrl;
+        if (args.websiteUrl !== undefined) user.websiteUrl = args.websiteUrl;
+        user.updatedAt = new Date();
+
+        const discussionsCount = Array.from(memoryDb.discussions.values()).filter(
+          (d) => d.authorId === user.id
+        ).length;
+        const commentsCount = Array.from(memoryDb.comments.values()).filter(
+          (c) => c.authorId === user.id
+        ).length;
+
+        return {
+          ...user,
+          discussionsCount,
+          commentsCount,
+          createdAt: user.createdAt.toISOString(),
+        };
+      }
+    },
+
     updateReportStatus: async (
       _: unknown,
       { id, status }: { id: string; status: 'PENDING' | 'REVIEWED' | 'RESOLVED' | 'DISMISSED' },
