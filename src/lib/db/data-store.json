@@ -9,12 +9,12 @@
         "displayName": "Alex Rivers",
         "passwordHash": "$2b$10$tpUe0vBgaBULqnI375gIW.ABHPY1yqMPhKxTciNFTnV2oqBIdW/Tu",
         "bio": "Full-stack architect & open-source contributor.",
-        "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-        "githubUrl": "https://github.com/alexrivers",
+        "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=g38ugq",
+        "githubUrl": "",
         "role": "ADMIN",
         "reputation": 285,
         "createdAt": "2026-10-11T13:49:24.153Z",
-        "updatedAt": "2026-10-11T13:49:24.153Z"
+        "updatedAt": "2026-10-11T22:39:47.835Z"
       }
     ],
     [
@@ -60,7 +60,7 @@
         "name": "React",
         "slug": "react",
         "description": "The library for web and native UIs",
-        "postCount": 1,
+        "postCount": 2,
         "createdAt": "2026-10-11T13:49:24.154Z"
       }
     ],
@@ -71,7 +71,7 @@
         "name": "TypeScript",
         "slug": "typescript",
         "description": "JavaScript with syntax for types",
-        "postCount": 2,
+        "postCount": 3,
         "createdAt": "2026-10-11T13:49:24.155Z"
       }
     ],
@@ -117,6 +117,28 @@
         "description": "Software design patterns and system design",
         "postCount": 1,
         "createdAt": "2026-10-11T13:49:24.156Z"
+      }
+    ],
+    [
+      "tag_1791758783664_0.6842637333289887",
+      {
+        "id": "tag_1791758783664_0.6842637333289887",
+        "name": "test",
+        "slug": "test",
+        "description": "Discussions about #test",
+        "postCount": 1,
+        "createdAt": "2026-10-11T22:46:23.664Z"
+      }
+    ],
+    [
+      "tag_1791759182515_0.4817244681922246",
+      {
+        "id": "tag_1791759182515_0.4817244681922246",
+        "name": "cpp",
+        "slug": "cpp",
+        "description": "Discussions about #cpp",
+        "postCount": 1,
+        "createdAt": "2026-10-11T22:53:02.515Z"
       }
     ]
   ],
@@ -167,6 +189,52 @@
         ],
         "createdAt": "2026-10-11T01:49:24.157Z",
         "updatedAt": "2026-10-11T01:49:24.157Z"
+      }
+    ],
+    [
+      "disc_1791758783664",
+      {
+        "id": "disc_1791758783664",
+        "title": "Persistent Discussion Check",
+        "content": "Testing disk persistence.",
+        "slug": "persistent-discussion-check-vl7lj",
+        "pinned": false,
+        "solved": false,
+        "score": 1,
+        "upvotesCount": 1,
+        "downvotesCount": 0,
+        "commentsCount": 0,
+        "viewsCount": 1,
+        "authorId": "usr_admin",
+        "tagIds": [
+          "tag_1791758783664_0.6842637333289887"
+        ],
+        "createdAt": "2026-10-11T22:46:23.664Z",
+        "updatedAt": "2026-10-11T22:46:23.664Z"
+      }
+    ],
+    [
+      "disc_1791759182516",
+      {
+        "id": "disc_1791759182516",
+        "title": "rgsfxgsgs",
+        "content": "yefishdvbjkx cnjssgrfvxckjfihsywfxjkhgsiyr7sfxhuyrisfxjk",
+        "slug": "rgsfxgsgs-0vz54",
+        "pinned": false,
+        "solved": false,
+        "score": 1,
+        "upvotesCount": 1,
+        "downvotesCount": 0,
+        "commentsCount": 0,
+        "viewsCount": 1,
+        "authorId": "usr_admin",
+        "tagIds": [
+          "tag_react",
+          "tag_ts",
+          "tag_1791759182515_0.4817244681922246"
+        ],
+        "createdAt": "2026-10-11T22:53:02.516Z",
+        "updatedAt": "2026-10-11T22:53:02.516Z"
       }
     ]
   ],
