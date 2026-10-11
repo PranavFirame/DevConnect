@@ -110,7 +110,7 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/tags"
-                className="inline-flex items-center gap-1.5 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl border-2 border-zinc-900 hover:bg-[#fff4d1] transition-colors shadow-[2px_2px_0px_0px_#18181b]"
+                className="inline-flex items-center gap-1.5 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl border-2 border-zinc-900 dark:border-zinc-700 hover:bg-[#fff4d1] hover:text-zinc-900 dark:hover:bg-zinc-700 dark:hover:text-white transition-colors shadow-[2px_2px_0px_0px_#18181b]"
               >
                 <span>Browse Topics</span>
                 <ArrowRight className="h-4 w-4" />

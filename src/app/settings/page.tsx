@@ -197,7 +197,7 @@ export default function SettingsPage() {
 
               {/* Picture Action Buttons */}
               <div className="flex flex-wrap items-center gap-2.5">
-                <label className="flex items-center gap-2 bg-white dark:bg-zinc-900 border-2 border-zinc-900 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-zinc-100 hover:bg-[#fff4d1] cursor-pointer brutal-btn transition-colors">
+                <label className="flex items-center gap-2 bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-zinc-100 hover:bg-[#fff4d1] hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-white cursor-pointer brutal-btn transition-colors">
                   <Upload className="h-3.5 w-3.5" />
                   <span>Upload Image</span>
                   <input
@@ -211,7 +211,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={handleRandomAvatar}
-                  className="flex items-center gap-2 bg-white dark:bg-zinc-900 border-2 border-zinc-900 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-zinc-100 hover:bg-[#fff4d1] brutal-btn transition-colors"
+                  className="flex items-center gap-2 bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-zinc-100 hover:bg-[#fff4d1] hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-white brutal-btn transition-colors"
                 >
                   <RefreshCw className="h-3.5 w-3.5" />
                   <span>Generate Avatar</span>
@@ -221,7 +221,7 @@ export default function SettingsPage() {
                   <button
                     type="button"
                     onClick={handleDeleteAvatar}
-                    className="flex items-center gap-2 bg-[#ffe5dd] border-2 border-zinc-900 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-rose-600 hover:bg-rose-100 brutal-btn transition-colors"
+                    className="flex items-center gap-2 bg-[#ffe5dd] dark:bg-rose-950/40 border-2 border-zinc-900 dark:border-rose-900 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/60 brutal-btn transition-colors"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                     <span>Remove</span>
