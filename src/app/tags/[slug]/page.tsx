@@ -86,22 +86,22 @@ function TagDetailInner({ slug }: { slug: string }) {
     <div className="max-w-4xl mx-auto space-y-6">
       <Link
         href="/tags"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800"
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border-2 border-zinc-900 dark:border-zinc-700 text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white shadow-[2px_2px_0px_0px_#18181b] hover:bg-zinc-100 transition-transform active:translate-x-0.5 active:translate-y-0.5"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4 stroke-[2.5]" />
         <span>All Tags</span>
       </Link>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="px-3 py-1 rounded-md text-sm font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
+      <div className="bg-[#ffe5dd] dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-3xl p-6 sm:p-8 shadow-[4px_4px_0px_0px_#18181b]">
+        <div className="flex items-center gap-2.5 mb-2">
+          <span className="px-3.5 py-1.5 rounded-xl text-sm font-black bg-[#42ed91] border-2 border-zinc-900 text-zinc-900 shadow-[2px_2px_0px_0px_#18181b]">
             #{tag?.name || slug}
           </span>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400">
             {discussions.length} discussions
           </span>
         </div>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mt-2">
           {tag?.description || `Explore questions and conversations about #${slug}.`}
         </p>
       </div>
@@ -110,14 +110,14 @@ function TagDetailInner({ slug }: { slug: string }) {
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-28 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
+              <div key={i} className="h-28 rounded-2xl bg-[#f4f0e6] dark:bg-zinc-800 border-2 border-zinc-900 animate-pulse" />
             ))}
           </div>
         ) : discussions.length > 0 ? (
           discussions.map((d) => <DiscussionCard key={d.id} {...d} />)
         ) : (
-          <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8">
-            <p className="text-sm text-slate-500">No discussions posted with this tag yet.</p>
+          <div className="text-center py-12 bg-white dark:bg-zinc-900 border-2 border-zinc-900 rounded-2xl p-8 shadow-[4px_4px_0px_0px_#18181b]">
+            <p className="text-sm font-bold text-zinc-600 dark:text-zinc-300">No discussions posted with this tag yet.</p>
           </div>
         )}
       </div>

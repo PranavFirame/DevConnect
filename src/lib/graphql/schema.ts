@@ -205,6 +205,8 @@ export const typeDefs = /* GraphQL */ `
 
     markNotificationAsRead(id: ID!): Boolean!
 
+    markAllNotificationsAsRead: Boolean!
+
     updateProfile(
       displayName: String
       bio: String

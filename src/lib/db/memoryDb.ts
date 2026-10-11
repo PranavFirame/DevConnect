@@ -10,6 +10,7 @@ export interface MockUser {
   bio?: string | null;
   avatarUrl?: string | null;
   githubUrl?: string | null;
+  websiteUrl?: string | null;
   role: 'USER' | 'MODERATOR' | 'ADMIN';
   reputation: number;
   createdAt: Date;
