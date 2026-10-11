@@ -1,5 +1,7 @@
 // In-memory mock database store for seamless local execution without live PostgreSQL
 import bcrypt from 'bcryptjs';
+import fs from 'fs';
+import path from 'path';
 
 export interface MockUser {
   id: string;
@@ -101,18 +103,164 @@ export interface MockReport {
   updatedAt: Date;
 }
 
+const DATA_FILE = path.join(process.cwd(), 'src', 'lib', 'db', 'data-store.json');
+
 class MemoryDb {
-  public users: Map<string, MockUser> = new Map();
-  public tags: Map<string, MockTag> = new Map();
-  public discussions: Map<string, MockDiscussion> = new Map();
-  public comments: Map<string, MockComment> = new Map();
-  public votes: Map<string, MockVote> = new Map();
-  public bookmarks: Map<string, MockBookmark> = new Map();
-  public notifications: Map<string, MockNotification> = new Map();
-  public reports: Map<string, MockReport> = new Map();
+  public users: Map<string, MockUser>;
+  public tags: Map<string, MockTag>;
+  public discussions: Map<string, MockDiscussion>;
+  public comments: Map<string, MockComment>;
+  public votes: Map<string, MockVote>;
+  public bookmarks: Map<string, MockBookmark>;
+  public notifications: Map<string, MockNotification>;
+  public reports: Map<string, MockReport>;
+
+  private createAutoSaveMap<K, V>(): Map<K, V> {
+    const map = new Map<K, V>();
+    const originalSet = map.set.bind(map);
+    const originalDelete = map.delete.bind(map);
+    const originalClear = map.clear.bind(map);
+
+    map.set = (key: K, value: V) => {
+      const res = originalSet(key, value);
+      this.saveToDisk();
+      return res;
+    };
+
+    map.delete = (key: K) => {
+      const res = originalDelete(key);
+      this.saveToDisk();
+      return res;
+    };
+
+    map.clear = () => {
+      originalClear();
+      this.saveToDisk();
+    };
+
+    return map;
+  }
 
   constructor() {
+    this.users = this.createAutoSaveMap<string, MockUser>();
+    this.tags = this.createAutoSaveMap<string, MockTag>();
+    this.discussions = this.createAutoSaveMap<string, MockDiscussion>();
+    this.comments = this.createAutoSaveMap<string, MockComment>();
+    this.votes = this.createAutoSaveMap<string, MockVote>();
+    this.bookmarks = this.createAutoSaveMap<string, MockBookmark>();
+    this.notifications = this.createAutoSaveMap<string, MockNotification>();
+    this.reports = this.createAutoSaveMap<string, MockReport>();
+
     this.seedDefaultData();
+    this.loadFromDisk();
+  }
+
+  public saveToDisk() {
+    try {
+      const data = {
+        users: Array.from(this.users.entries()),
+        tags: Array.from(this.tags.entries()),
+        discussions: Array.from(this.discussions.entries()),
+        comments: Array.from(this.comments.entries()),
+        votes: Array.from(this.votes.entries()),
+        bookmarks: Array.from(this.bookmarks.entries()),
+        notifications: Array.from(this.notifications.entries()),
+        reports: Array.from(this.reports.entries()),
+      };
+      fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to save store to disk:', err);
+    }
+  }
+
+  public loadFromDisk() {
+    try {
+      if (!fs.existsSync(DATA_FILE)) {
+        this.saveToDisk();
+        return;
+      }
+      const raw = fs.readFileSync(DATA_FILE, 'utf-8');
+      const data = JSON.parse(raw);
+
+      if (data.users && Array.isArray(data.users)) {
+        this.users.clear();
+        data.users.forEach(([k, v]: [string, MockUser]) => {
+          this.users.set(k, {
+            ...v,
+            createdAt: new Date(v.createdAt),
+            updatedAt: new Date(v.updatedAt),
+          });
+        });
+      }
+      if (data.tags && Array.isArray(data.tags)) {
+        this.tags.clear();
+        data.tags.forEach(([k, v]: [string, MockTag]) => {
+          this.tags.set(k, {
+            ...v,
+            createdAt: new Date(v.createdAt),
+          });
+        });
+      }
+      if (data.discussions && Array.isArray(data.discussions)) {
+        this.discussions.clear();
+        data.discussions.forEach(([k, v]: [string, MockDiscussion]) => {
+          this.discussions.set(k, {
+            ...v,
+            createdAt: new Date(v.createdAt),
+            updatedAt: new Date(v.updatedAt),
+          });
+        });
+      }
+      if (data.comments && Array.isArray(data.comments)) {
+        this.comments.clear();
+        data.comments.forEach(([k, v]: [string, MockComment]) => {
+          this.comments.set(k, {
+            ...v,
+            createdAt: new Date(v.createdAt),
+            updatedAt: new Date(v.updatedAt),
+          });
+        });
+      }
+      if (data.votes && Array.isArray(data.votes)) {
+        this.votes.clear();
+        data.votes.forEach(([k, v]: [string, MockVote]) => {
+          this.votes.set(k, {
+            ...v,
+            createdAt: new Date(v.createdAt),
+          });
+        });
+      }
+      if (data.bookmarks && Array.isArray(data.bookmarks)) {
+        this.bookmarks.clear();
+        data.bookmarks.forEach(([k, v]: [string, MockBookmark]) => {
+          this.bookmarks.set(k, {
+            ...v,
+            createdAt: new Date(v.createdAt),
+          });
+        });
+      }
+      if (data.notifications && Array.isArray(data.notifications)) {
+        this.notifications.clear();
+        data.notifications.forEach(([k, v]: [string, MockNotification]) => {
+          this.notifications.set(k, {
+            ...v,
+            createdAt: new Date(v.createdAt),
+          });
+        });
+      }
+      if (data.reports && Array.isArray(data.reports)) {
+        this.reports.clear();
+        data.reports.forEach(([k, v]: [string, MockReport]) => {
+          this.reports.set(k, {
+            ...v,
+            createdAt: new Date(v.createdAt),
+            updatedAt: new Date(v.updatedAt),
+          });
+        });
+      }
+    } catch (err) {
+      console.error('Failed to load store from disk:', err);
+    }
   }
 
   private seedDefaultData() {
@@ -286,3 +434,4 @@ export const memoryDb = globalThis.memoryDbGlobal ?? new MemoryDb();
 if (process.env.NODE_ENV !== 'production') {
   globalThis.memoryDbGlobal = memoryDb;
 }
+
