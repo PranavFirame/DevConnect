@@ -123,7 +123,7 @@ function SearchPageContent() {
 
             <button
               type="submit"
-              className="bg-[#f25774] hover:bg-[#e03e5c] text-white font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-xl brutal-btn"
+              className="bg-[#42ed91] hover:bg-[#2dd87d] text-white font-black text-xs uppercase tracking-wider px-6 py-2.5 rounded-xl brutal-btn"
             >
               Search
             </button>

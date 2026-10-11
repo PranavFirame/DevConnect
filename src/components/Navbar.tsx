@@ -36,12 +36,12 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
         {/* Brand / Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="h-10 w-10 rounded-xl bg-[#f25774] flex items-center justify-center text-white border-2 border-zinc-900 dark:border-zinc-100 shadow-[2px_2px_0px_0px_#18181b] group-hover:-rotate-3 transition-transform">
+          <div className="h-10 w-10 rounded-xl bg-[#42ed91] flex items-center justify-center text-white border-2 border-zinc-900 dark:border-zinc-100 shadow-[2px_2px_0px_0px_#18181b] group-hover:-rotate-3 transition-transform">
             <Terminal className="h-5 w-5" />
           </div>
           <div className="flex flex-col">
             <span className="font-black text-xl tracking-tight text-zinc-900 dark:text-white leading-none">
-              Dev<span className="text-[#f25774]">Connect</span>
+              Dev<span className="text-[#42ed91]">Connect</span>
             </span>
             <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mt-0.5">
               Community Hub
@@ -65,13 +65,13 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           <Link
             href="/discussions"
-            className="text-sm font-bold text-zinc-800 dark:text-zinc-200 hover:text-[#f25774] px-3 py-2 rounded-lg transition-colors"
+            className="text-sm font-bold text-zinc-800 dark:text-zinc-200 hover:text-[#42ed91] px-3 py-2 rounded-lg transition-colors"
           >
             Discussions
           </Link>
           <Link
             href="/tags"
-            className="text-sm font-bold text-zinc-800 dark:text-zinc-200 hover:text-[#f25774] px-3 py-2 rounded-lg transition-colors"
+            className="text-sm font-bold text-zinc-800 dark:text-zinc-200 hover:text-[#42ed91] px-3 py-2 rounded-lg transition-colors"
           >
             Tags
           </Link>
@@ -80,7 +80,7 @@ export function Navbar() {
             <>
               <Link
                 href="/discussions/new"
-                className="flex items-center gap-1.5 bg-[#f25774] hover:bg-[#e03e5c] text-white text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-xl brutal-btn"
+                className="flex items-center gap-1.5 bg-[#42ed91] hover:bg-[#2dd87d] text-zinc-900 text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-xl brutal-btn"
               >
                 <PlusCircle className="h-4 w-4" />
                 <span>New Post</span>
@@ -89,7 +89,7 @@ export function Navbar() {
               <Link
                 href="/bookmarks"
                 title="Saved Discussions"
-                className="p-2.5 text-zinc-800 dark:text-zinc-200 hover:text-[#f25774] rounded-xl border-2 border-transparent hover:border-zinc-900 transition-colors"
+                className="p-2.5 text-zinc-800 dark:text-zinc-200 hover:text-[#42ed91] rounded-xl border-2 border-transparent hover:border-zinc-900 transition-colors"
               >
                 <Bookmark className="h-5 w-5" />
               </Link>
@@ -97,7 +97,7 @@ export function Navbar() {
               <Link
                 href="/notifications"
                 title="Notifications"
-                className="p-2.5 text-zinc-800 dark:text-zinc-200 hover:text-[#f25774] rounded-xl border-2 border-transparent hover:border-zinc-900 transition-colors relative"
+                className="p-2.5 text-zinc-800 dark:text-zinc-200 hover:text-[#42ed91] rounded-xl border-2 border-transparent hover:border-zinc-900 transition-colors relative"
               >
                 <Bell className="h-5 w-5" />
               </Link>
@@ -116,7 +116,7 @@ export function Navbar() {
               <div className="flex items-center gap-2 pl-2 border-l-2 border-zinc-300 dark:border-zinc-700">
                 <Link
                   href={`/users/${user.username}`}
-                  className="flex items-center gap-2 text-sm font-bold text-zinc-900 dark:text-zinc-100 hover:text-[#f25774]"
+                  className="flex items-center gap-2 text-sm font-bold text-zinc-900 dark:text-zinc-100 hover:text-[#42ed91]"
                 >
                   {user.avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -146,13 +146,13 @@ export function Navbar() {
             <div className="flex items-center gap-2.5">
               <Link
                 href="/login"
-                className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100 hover:text-[#f25774] px-4 py-2.5 rounded-xl border-2 border-zinc-900 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100 hover:text-[#42ed91] px-4 py-2.5 rounded-xl border-2 border-zinc-900 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               >
                 Log In
               </Link>
               <Link
                 href="/register"
-                className="text-xs font-black uppercase tracking-wider bg-[#f25774] hover:bg-[#e03e5c] text-white px-4 py-2.5 rounded-xl brutal-btn"
+                className="text-xs font-black uppercase tracking-wider bg-[#42ed91] hover:bg-[#2dd87d] text-zinc-900 px-4 py-2.5 rounded-xl brutal-btn"
               >
                 Sign Up
               </Link>
@@ -203,7 +203,7 @@ export function Navbar() {
                 <Link
                   href="/discussions/new"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="px-3 py-2 text-[#f25774] font-bold"
+                  className="px-3 py-2 text-[#42ed91] font-bold"
                 >
                   Create Discussion
                 </Link>
@@ -250,7 +250,7 @@ export function Navbar() {
                 <Link
                   href="/register"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex-1 text-center py-2 bg-[#f25774] text-white rounded-lg font-bold"
+                  className="flex-1 text-center py-2 bg-[#42ed91] text-white rounded-lg font-bold"
                 >
                   Sign Up
                 </Link>

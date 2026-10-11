@@ -113,10 +113,10 @@ export default function TagsPage() {
 
                 <div className="flex items-center justify-between text-xs font-bold text-zinc-500 pt-3 border-t-2 border-zinc-100 dark:border-zinc-800 mt-3">
                   <span className="flex items-center gap-1.5">
-                    <MessageSquare className="h-3.5 w-3.5 text-[#f25774]" />
+                    <MessageSquare className="h-3.5 w-3.5 text-[#42ed91]" />
                     <span>{t.postCount} posts</span>
                   </span>
-                  <span className="text-[#f25774] font-black uppercase tracking-wider text-[11px] group-hover:translate-x-1 transition-transform">
+                  <span className="text-[#42ed91] font-black uppercase tracking-wider text-[11px] group-hover:translate-x-1 transition-transform">
                     Explore →
                   </span>
                 </div>

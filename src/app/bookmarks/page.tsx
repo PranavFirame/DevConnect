@@ -82,7 +82,7 @@ export default function BookmarksPage() {
           </p>
           <Link
             href="/login"
-            className="inline-block bg-[#f25774] text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider brutal-btn"
+            className="inline-block bg-[#42ed91] text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider brutal-btn"
           >
             Sign In
           </Link>

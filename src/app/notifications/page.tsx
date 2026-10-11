@@ -89,7 +89,7 @@ export default function NotificationsPage() {
         <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-900 rounded-3xl p-8 shadow-[4px_4px_0px_0px_#18181b]">
           <h2 className="text-xl font-black mb-2">Notifications</h2>
           <p className="text-xs font-medium text-zinc-500 mb-6">Log in to view your activity notifications.</p>
-          <Link href="/login" className="inline-block bg-[#f25774] text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider brutal-btn">
+          <Link href="/login" className="inline-block bg-[#42ed91] text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider brutal-btn">
             Sign In
           </Link>
         </div>
@@ -121,7 +121,7 @@ export default function NotificationsPage() {
               onClick={handleMarkAllRead}
               className="flex items-center gap-2 text-xs font-black uppercase tracking-wider bg-white border-2 border-zinc-900 px-4 py-2 rounded-xl brutal-btn"
             >
-              <CheckCheck className="h-4 w-4 text-[#f25774]" />
+              <CheckCheck className="h-4 w-4 text-[#42ed91]" />
               <span>Mark all read</span>
             </button>
           )}
@@ -141,10 +141,10 @@ export default function NotificationsPage() {
                 className={`p-5 rounded-2xl border-2 transition-all flex items-start gap-4 ${
                   n.read
                     ? 'border-zinc-900 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-[3px_3px_0px_0px_#18181b]'
-                    : 'border-zinc-900 bg-[#fff4d1] dark:bg-zinc-800 shadow-[4px_4px_0px_0px_#f25774]'
+                    : 'border-zinc-900 bg-[#fff4d1] dark:bg-zinc-800 shadow-[4px_4px_0px_0px_#42ed91]'
                 }`}
               >
-                <div className="p-2.5 rounded-xl bg-white border-2 border-zinc-900 text-[#f25774] shadow-[1.5px_1.5px_0px_0px_#18181b]">
+                <div className="p-2.5 rounded-xl bg-white border-2 border-zinc-900 text-[#42ed91] shadow-[1.5px_1.5px_0px_0px_#18181b]">
                   {n.type === 'ACCEPTED_SOLUTION' ? (
                     <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                   ) : (
@@ -161,7 +161,7 @@ export default function NotificationsPage() {
                   {n.linkUrl && (
                     <Link
                       href={n.linkUrl}
-                      className="inline-block mt-2 text-xs font-black uppercase tracking-wider text-[#f25774] hover:underline"
+                      className="inline-block mt-2 text-xs font-black uppercase tracking-wider text-[#42ed91] hover:underline"
                     >
                       View discussion →
                     </Link>

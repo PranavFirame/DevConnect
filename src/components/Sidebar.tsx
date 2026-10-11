@@ -38,7 +38,7 @@ export function Sidebar({ popularTags = [] }: SidebarProps) {
             href="/discussions"
             className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-zinc-900 dark:text-zinc-100 rounded-xl hover:bg-[#ffe5dd] dark:hover:bg-zinc-800 transition-colors"
           >
-            <div className="h-7 w-7 rounded-lg bg-[#f25774] border border-zinc-900 flex items-center justify-center text-white">
+            <div className="h-7 w-7 rounded-lg bg-[#42ed91] border border-zinc-900 flex items-center justify-center text-white">
               <MessageSquare className="h-3.5 w-3.5" />
             </div>
             <span>Discussions</span>
@@ -67,7 +67,7 @@ export function Sidebar({ popularTags = [] }: SidebarProps) {
       {/* Trending Topics Widget */}
       <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-2xl p-4 shadow-[3px_3px_0px_0px_#18181b]">
         <div className="flex items-center gap-2 mb-3 px-1">
-          <Flame className="h-4 w-4 text-[#f25774]" />
+          <Flame className="h-4 w-4 text-[#42ed91]" />
           <h3 className="font-black text-sm uppercase tracking-wide text-zinc-900 dark:text-white">
             Hot Topics
           </h3>
@@ -106,7 +106,7 @@ export function Sidebar({ popularTags = [] }: SidebarProps) {
       {/* Community Spotlight / FlowFest Vibe Banner */}
       <div className="bg-[#fff4d1] dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-2xl p-4 shadow-[3px_3px_0px_0px_#18181b] relative overflow-hidden">
         <div className="flex items-center gap-2 mb-2 text-zinc-900 dark:text-amber-400">
-          <Zap className="h-4 w-4 text-[#f25774]" />
+          <Zap className="h-4 w-4 text-[#42ed91]" />
           <h4 className="font-black text-xs uppercase tracking-wider">Community First</h4>
         </div>
         <p className="text-xs text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed mb-3">

@@ -93,7 +93,7 @@ export default function HomePage() {
             </span>
 
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-3 leading-tight">
-              Where Developers <span className="text-[#f25774]">Connect</span>, Discuss, and Build Together.
+              Where Developers <span className="text-[#42ed91]">Connect</span>, Discuss, and Build Together.
             </h1>
 
             <p className="text-zinc-700 dark:text-zinc-300 text-sm sm:text-base font-medium leading-relaxed mb-6">
@@ -103,7 +103,7 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="/discussions/new"
-                className="inline-flex items-center gap-2 bg-[#f25774] hover:bg-[#e03e5c] text-white font-black text-xs uppercase tracking-wider px-5 py-3 rounded-xl brutal-btn"
+                className="inline-flex items-center gap-2 bg-[#42ed91] hover:bg-[#2dd87d] text-zinc-900 font-black text-xs uppercase tracking-wider px-5 py-3 rounded-xl brutal-btn"
               >
                 <PlusCircle className="h-4 w-4" />
                 <span>Start a Discussion</span>
@@ -120,7 +120,7 @@ export default function HomePage() {
 
           {/* Retro-styled sun graphic backdrop */}
           <div className="absolute -right-10 -bottom-10 w-60 h-60 rounded-full bg-[#ffb800]/20 border-4 border-dashed border-[#ffb800]/40 pointer-events-none flex items-center justify-center">
-            <div className="w-40 h-40 rounded-full bg-[#f25774]/20 border-2 border-[#f25774]/40" />
+            <div className="w-40 h-40 rounded-full bg-[#42ed91]/20 border-2 border-[#42ed91]/40" />
           </div>
         </div>
 
@@ -131,7 +131,7 @@ export default function HomePage() {
               onClick={() => setActiveTab('newest')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
                 activeTab === 'newest'
-                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-[2px_2px_0px_0px_#f25774]'
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-[2px_2px_0px_0px_#42ed91]'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 border border-transparent'
               }`}
             >
@@ -142,7 +142,7 @@ export default function HomePage() {
               onClick={() => setActiveTab('popular')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
                 activeTab === 'popular'
-                  ? 'bg-[#f25774] text-white shadow-[2px_2px_0px_0px_#18181b]'
+                  ? 'bg-[#42ed91] text-white shadow-[2px_2px_0px_0px_#18181b]'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 border border-transparent'
               }`}
             >
@@ -186,7 +186,7 @@ export default function HomePage() {
             <p className="text-xs text-zinc-500 mb-4 font-medium">Be the first developer to start a conversation in this topic.</p>
             <Link
               href="/discussions/new"
-              className="inline-flex items-center gap-1.5 bg-[#f25774] text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider brutal-btn"
+              className="inline-flex items-center gap-1.5 bg-[#42ed91] text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider brutal-btn"
             >
               Create Discussion
             </Link>

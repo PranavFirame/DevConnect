@@ -106,7 +106,7 @@ function DiscussionsContent() {
               <span>Tag: #{selectedTag}</span>
               <button
                 onClick={() => setSelectedTag('')}
-                className="hover:text-[#f25774] font-black text-sm ml-1"
+                className="hover:text-[#42ed91] font-black text-sm ml-1"
               >
                 ×
               </button>
@@ -121,7 +121,7 @@ function DiscussionsContent() {
               onClick={() => setSort('newest')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
                 sort === 'newest'
-                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-[2px_2px_0px_0px_#f25774]'
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-[2px_2px_0px_0px_#42ed91]'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
               }`}
             >
@@ -132,7 +132,7 @@ function DiscussionsContent() {
               onClick={() => setSort('popular')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
                 sort === 'popular'
-                  ? 'bg-[#f25774] text-white shadow-[2px_2px_0px_0px_#18181b]'
+                  ? 'bg-[#42ed91] text-white shadow-[2px_2px_0px_0px_#18181b]'
                   : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
               }`}
             >

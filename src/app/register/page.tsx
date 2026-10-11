@@ -69,7 +69,7 @@ export default function RegisterPage() {
       <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-3xl p-7 sm:p-9 shadow-[6px_6px_0px_0px_#18181b]">
         {/* Brand */}
         <div className="text-center mb-6">
-          <div className="h-14 w-14 rounded-2xl bg-[#f25774] border-2 border-zinc-900 mx-auto flex items-center justify-center text-white mb-3 shadow-[3px_3px_0px_0px_#18181b] -rotate-3">
+          <div className="h-14 w-14 rounded-2xl bg-[#42ed91] border-2 border-zinc-900 mx-auto flex items-center justify-center text-white mb-3 shadow-[3px_3px_0px_0px_#18181b] -rotate-3">
             <Terminal className="h-7 w-7" />
           </div>
           <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 block mb-1">
@@ -159,7 +159,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-[#f25774] hover:bg-[#e03e5c] text-white font-black text-xs uppercase tracking-wider py-3 rounded-xl brutal-btn mt-3 disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 bg-[#42ed91] hover:bg-[#2dd87d] text-zinc-900 font-black text-xs uppercase tracking-wider py-3 rounded-xl brutal-btn mt-3 disabled:opacity-50"
           >
             <span>{loading ? 'Creating Account...' : 'Sign Up'}</span>
             <ArrowRight className="h-4 w-4 stroke-[2.5]" />
@@ -168,7 +168,7 @@ export default function RegisterPage() {
 
         <div className="mt-6 pt-5 border-t-2 border-zinc-100 dark:border-zinc-800 text-center text-xs text-zinc-500 font-medium">
           <span>Already have an account? </span>
-          <Link href="/login" className="text-[#f25774] font-black uppercase tracking-wider hover:underline">
+          <Link href="/login" className="text-[#42ed91] font-black uppercase tracking-wider hover:underline">
             Sign In
           </Link>
         </div>

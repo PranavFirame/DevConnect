@@ -148,8 +148,8 @@ export function DiscussionCard({
           disabled={isVoting}
           className={`p-1 rounded-lg transition-colors ${
             userVote === 'UPVOTE'
-              ? 'text-white bg-[#f25774]'
-              : 'text-zinc-600 dark:text-zinc-400 hover:text-[#f25774] hover:bg-zinc-200 dark:hover:bg-zinc-700'
+              ? 'text-white bg-[#42ed91]'
+              : 'text-zinc-600 dark:text-zinc-400 hover:text-[#42ed91] hover:bg-zinc-200 dark:hover:bg-zinc-700'
           }`}
         >
           <ChevronUp className="h-5 w-5 stroke-[2.5]" />
@@ -157,7 +157,7 @@ export function DiscussionCard({
 
         <span className={`text-xs font-black my-1 ${
           userVote === 'UPVOTE' 
-            ? 'text-[#f25774]' 
+            ? 'text-[#42ed91]' 
             : userVote === 'DOWNVOTE' 
             ? 'text-rose-600' 
             : 'text-zinc-900 dark:text-white'
@@ -185,7 +185,7 @@ export function DiscussionCard({
         <div className="flex flex-wrap items-center gap-2 mb-2 text-xs">
           <Link
             href={`/users/${author.username}`}
-            className="flex items-center gap-1.5 font-bold text-zinc-900 dark:text-zinc-100 hover:text-[#f25774]"
+            className="flex items-center gap-1.5 font-bold text-zinc-900 dark:text-zinc-100 hover:text-[#42ed91]"
           >
             {author.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -217,7 +217,7 @@ export function DiscussionCard({
         </div>
 
         {/* Title */}
-        <h2 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white leading-snug group-hover:text-[#f25774] transition-colors mb-2">
+        <h2 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white leading-snug group-hover:text-[#42ed91] transition-colors mb-2">
           <Link href={`/discussions/${slug}`}>{title}</Link>
         </h2>
 
@@ -248,7 +248,7 @@ export function DiscussionCard({
 
             <Link
               href={`/discussions/${slug}#replies`}
-              className="flex items-center gap-1 hover:text-[#f25774] transition-colors"
+              className="flex items-center gap-1 hover:text-[#42ed91] transition-colors"
             >
               <MessageSquare className="h-4 w-4" />
               <span>{commentsCount}</span>
