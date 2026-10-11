@@ -1,26 +1,92 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fbf9f5;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --primary: #f25774;
+  --primary-hover: #e03e5c;
+  --primary-foreground: #ffffff;
+  --secondary: #ffb800;
+  --accent-peach: #ffe5dd;
+  --accent-sun: #fff4d1;
+  --border-bold: #18181b;
+  --muted: #f4f0e6;
+  --muted-foreground: #71717a;
+  --border: #e4decb;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #121316;
+  --foreground: #f4f4f5;
+  --card: #1b1d22;
+  --card-foreground: #f4f4f5;
+  --primary: #f25774;
+  --primary-hover: #ff6b85;
+  --primary-foreground: #ffffff;
+  --secondary: #fbb01b;
+  --accent-peach: #2a1b20;
+  --accent-sun: #292415;
+  --border-bold: #3f3f46;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --border: #2e3037;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+}
+
+/* Neo-brutalist / Festival tactile elevation */
+.brutal-card {
+  border: 2px solid var(--border-bold);
+  box-shadow: 4px 4px 0px 0px var(--border-bold);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.brutal-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--border-bold);
+}
+
+.brutal-btn {
+  border: 2px solid var(--border-bold);
+  box-shadow: 3px 3px 0px 0px var(--border-bold);
+  transition: all 0.1s ease;
+}
+
+.brutal-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px 0px var(--border-bold);
+}
+
+.brutal-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px 0px var(--border-bold);
+}
+
+.brutal-badge {
+  border: 1.5px solid var(--border-bold);
+  box-shadow: 2px 2px 0px 0px var(--border-bold);
+}
+
+/* Code block formatting */
+pre {
+  background-color: #121316 !important;
+  color: #f4f4f5 !important;
+  border: 2px solid var(--border-bold);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.875rem;
+  box-shadow: 4px 4px 0px 0px var(--border-bold);
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }

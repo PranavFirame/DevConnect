@@ -1,0 +1,228 @@
+// Prisma Schema for DevConnect
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique
+  passwordHash  String?
+  displayName   String
+  bio           String?   @db.Text
+  avatarUrl     String?
+  githubUrl     String?
+  websiteUrl    String?
+  role          Role      @default(USER)
+  reputation    Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  discussions   Discussion[]
+  comments      Comment[]
+  votes         Vote[]
+  bookmarks     Bookmark[]
+  reports       Report[]       @relation("ReportedBy")
+  notifications Notification[] @relation("RecipientUser")
+  triggeredNotifications Notification[] @relation("ActorUser")
+
+  @@index([username])
+  @@index([email])
+}
+
+model Discussion {
+  id            String    @id @default(cuid())
+  title         String
+  slug          String    @unique
+  content       String    @db.Text
+  pinned        Boolean   @default(false)
+  solved        Boolean   @default(false)
+  score         Int       @default(0)
+  upvotesCount  Int       @default(0)
+  downvotesCount Int      @default(0)
+  commentsCount Int       @default(0)
+  viewsCount    Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Author
+  authorId      String
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Accepted Answer
+  solvedCommentId String? @unique
+  solvedComment   Comment? @relation("AcceptedSolution", fields: [solvedCommentId], references: [id], onDelete: SetNull)
+
+  // Relations
+  tags          PostTag[]
+  comments      Comment[] @relation("DiscussionComments")
+  votes         Vote[]
+  bookmarks     Bookmark[]
+  reports       Report[]
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([score])
+  @@index([slug])
+}
+
+model Comment {
+  id            String    @id @default(cuid())
+  content       String    @db.Text
+  score         Int       @default(0)
+  upvotesCount  Int       @default(0)
+  downvotesCount Int      @default(0)
+  depth         Int       @default(0)
+  isAccepted    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  authorId      String
+  author        User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  discussionId  String
+  discussion    Discussion @relation("DiscussionComments", fields: [discussionId], references: [id], onDelete: Cascade)
+
+  parentId      String?
+  parent        Comment?   @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
+  replies       Comment[]  @relation("CommentToComment")
+
+  solutionFor   Discussion? @relation("AcceptedSolution")
+
+  votes         Vote[]
+  reports       Report[]
+
+  @@index([discussionId])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([createdAt])
+}
+
+model Tag {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  color       String?   @default("#0284c7")
+  postCount   Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  discussions PostTag[]
+
+  @@index([slug])
+}
+
+model PostTag {
+  discussionId String
+  tagId        String
+
+  discussion   Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  tag          Tag        @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([discussionId, tagId])
+  @@index([tagId])
+  @@index([discussionId])
+}
+
+model Vote {
+  id           String    @id @default(cuid())
+  type         VoteType
+  createdAt    DateTime  @default(now())
+
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  discussionId String?
+  discussion   Discussion? @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+
+  commentId    String?
+  comment      Comment?    @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, discussionId])
+  @@unique([userId, commentId])
+  @@index([userId])
+  @@index([discussionId])
+  @@index([commentId])
+}
+
+model Bookmark {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  discussionId String
+  discussion   Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, discussionId])
+  @@index([userId])
+  @@index([discussionId])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  type        String   // "REPLY", "ACCEPTED_SOLUTION", "UPVOTE", "SYSTEM"
+  title       String
+  message     String
+  linkUrl     String?
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  userId      String
+  user        User     @relation("RecipientUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  actorId     String?
+  actor       User?    @relation("ActorUser", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+model Report {
+  id           String       @id @default(cuid())
+  reason       String
+  details      String?      @db.Text
+  status       ReportStatus @default(PENDING)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  reporterId   String
+  reporter     User         @relation("ReportedBy", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  discussionId String?
+  discussion   Discussion?  @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+
+  commentId    String?
+  comment      Comment?     @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([reporterId])
+}

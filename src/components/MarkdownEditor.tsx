@@ -1,0 +1,219 @@
+'use client';
+
+import React, { useState } from 'react';
+import { 
+  Code, 
+  Bold, 
+  Italic, 
+  List, 
+  Link as LinkIcon, 
+  Eye, 
+  Edit3, 
+  HelpCircle,
+  Copy,
+  Check
+} from 'lucide-react';
+
+interface MarkdownEditorProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  minHeight?: string;
+}
+
+export function MarkdownEditor({
+  value,
+  onChange,
+  placeholder = 'Write in Markdown. Code blocks supported with ```language...',
+  minHeight = 'min-h-[220px]',
+}: MarkdownEditorProps) {
+  const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
+  const [copied, setCopied] = useState(false);
+
+  // Quick formatting helpers
+  const insertSyntax = (before: string, after: string = '') => {
+    const textarea = document.getElementById('markdown-textarea') as HTMLTextAreaElement | null;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = value.substring(start, end) || 'text';
+    const replacement = `${before}${selectedText}${after}`;
+
+    const newValue = value.substring(0, start) + replacement + value.substring(end);
+    onChange(newValue);
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + before.length, start + before.length + selectedText.length);
+    }, 50);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Safe client-side markdown to html generator
+  const renderPreview = (content: string) => {
+    if (!content.trim()) {
+      return '<p class="text-slate-400 italic">Nothing to preview yet.</p>';
+    }
+
+    // Escape raw HTML tags for XSS protection
+    let safe = content
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Code blocks ```code```
+    safe = safe.replace(/```([a-zA-Z0-9]*)\n([\s\S]*?)```/g, (_, lang, code) => {
+      return `<pre class="my-3 p-3 bg-slate-900 text-slate-100 rounded-lg text-xs overflow-x-auto"><code>${code.trim()}</code></pre>`;
+    });
+
+    // Inline code `code`
+    safe = safe.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-xs">$1</code>');
+
+    // Headers
+    safe = safe.replace(/^### (.*$)/gim, '<h3 class="text-base font-bold my-2 text-slate-900 dark:text-white">$1</h3>');
+    safe = safe.replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold my-2 text-slate-900 dark:text-white">$1</h2>');
+    safe = safe.replace(/^# (.*$)/gim, '<h1 class="text-xl font-bold my-3 text-slate-900 dark:text-white">$1</h1>');
+
+    // Bold & Italics
+    safe = safe.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    safe = safe.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+    // Links [title](url) - strictly sanitize scheme
+    safe = safe.replace(/\[(.*?)\]\((https?:\/\/.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-medium">$1</a>');
+
+    // Lists
+    safe = safe.replace(/^\s*-\s+(.*$)/gim, '<li class="ml-4 list-disc text-sm">$1</li>');
+
+    // Paragraph line breaks
+    safe = safe.replace(/\n\n/g, '<br/><br/>');
+
+    return safe;
+  };
+
+  const wordCount = value.trim() ? value.trim().split(/\s+/).length : 0;
+  const charCount = value.length;
+
+  return (
+    <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
+      {/* Editor Toolbar */}
+      <div className="flex flex-wrap items-center justify-between border-b border-slate-200 dark:border-slate-800 px-3 py-2 bg-slate-50 dark:bg-slate-800/50">
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab('write')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              activeTab === 'write'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+            }`}
+          >
+            <Edit3 className="h-3.5 w-3.5" />
+            <span>Write</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('preview')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              activeTab === 'preview'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+            }`}
+          >
+            <Eye className="h-3.5 w-3.5" />
+            <span>Preview</span>
+          </button>
+        </div>
+
+        {/* Action formatting buttons */}
+        {activeTab === 'write' && (
+          <div className="flex items-center gap-1 text-slate-500">
+            <button
+              type="button"
+              onClick={() => insertSyntax('**', '**')}
+              title="Bold"
+              className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+            >
+              <Bold className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => insertSyntax('*', '*')}
+              title="Italic"
+              className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+            >
+              <Italic className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => insertSyntax('```typescript\n', '\n```')}
+              title="Code Block"
+              className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+            >
+              <Code className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => insertSyntax('- ')}
+              title="Bullet List"
+              className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+            >
+              <List className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => insertSyntax('[', '](https://)')}
+              title="Link"
+              className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+            >
+              <LinkIcon className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={handleCopy}
+          title="Copy Markdown"
+          className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+        >
+          {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+        </button>
+      </div>
+
+      {/* Editor Body */}
+      {activeTab === 'write' ? (
+        <textarea
+          id="markdown-textarea"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className={`w-full p-4 text-sm font-mono text-slate-900 dark:text-slate-100 bg-transparent border-none focus:outline-none resize-y ${minHeight}`}
+        />
+      ) : (
+        <div
+          className={`p-4 text-sm leading-relaxed text-slate-800 dark:text-slate-200 overflow-y-auto ${minHeight}`}
+          dangerouslySetInnerHTML={{ __html: renderPreview(value) }}
+        />
+      )}
+
+      {/* Stats footer */}
+      <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-3 py-1.5 text-[11px] text-slate-400 bg-slate-50/50 dark:bg-slate-800/30">
+        <span className="flex items-center gap-1">
+          <HelpCircle className="h-3 w-3" />
+          Markdown and syntax highlighting supported
+        </span>
+        <div className="flex items-center gap-3">
+          <span>{wordCount} words</span>
+          <span>{charCount} characters</span>
+        </div>
+      </div>
+    </div>
+  );
+}
