@@ -191,7 +191,7 @@ export default function ModerationPage() {
                     </button>
                     <button
                       onClick={() => handleUpdateStatus(r.id, 'DISMISSED')}
-                      className="flex items-center gap-1.5 bg-white dark:bg-zinc-800 border-2 border-zinc-900 dark:border-zinc-700 text-zinc-900 dark:text-white px-3.5 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider shadow-[2px_2px_0px_0px_#18181b] hover:bg-zinc-100"
+                      className="flex items-center gap-1.5 bg-white dark:bg-zinc-800 border-2 border-zinc-900 dark:border-zinc-700 text-zinc-900 dark:text-white px-3.5 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider shadow-[2px_2px_0px_0px_#18181b] hover:bg-[#ffb800] hover:text-zinc-900 dark:hover:bg-[#ffb800] dark:hover:text-zinc-900 transition-all"
                     >
                       <XCircle className="h-3.5 w-3.5" />
                       <span>Dismiss</span>

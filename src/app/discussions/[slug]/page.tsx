@@ -457,7 +457,7 @@ function DiscussionDetailInner({ slug }: { slug: string }) {
       {/* Back button */}
       <Link
         href="/discussions"
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border-2 border-zinc-900 dark:border-zinc-700 text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white shadow-[2px_2px_0px_0px_#18181b] hover:bg-zinc-100 transition-transform active:translate-x-0.5 active:translate-y-0.5"
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border-2 border-zinc-900 dark:border-zinc-700 text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white shadow-[2px_2px_0px_0px_#18181b] hover:bg-[#42ed91] hover:text-zinc-900 dark:hover:bg-[#42ed91] dark:hover:text-zinc-900 transition-all active:translate-x-0.5 active:translate-y-0.5"
       >
         <ArrowLeft className="h-4 w-4 stroke-[2.5]" />
         <span>Back to Discussions</span>
@@ -583,10 +583,10 @@ function DiscussionDetailInner({ slug }: { slug: string }) {
 
             <button
               onClick={handleToggleBookmark}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider border-2 border-zinc-900 dark:border-zinc-700 shadow-[2px_2px_0px_0px_#18181b] transition-transform active:translate-x-0.5 active:translate-y-0.5 ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider border-2 border-zinc-900 dark:border-zinc-700 shadow-[2px_2px_0px_0px_#18181b] transition-all active:translate-x-0.5 active:translate-y-0.5 ${
                 discussion.isBookmarked
                   ? 'bg-[#ffb800] text-zinc-900'
-                  : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100'
+                  : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-[#42ed91] hover:text-zinc-900 dark:hover:bg-[#42ed91] dark:hover:text-zinc-900'
               }`}
             >
               <Bookmark className={`h-4 w-4 ${discussion.isBookmarked ? 'fill-current' : ''}`} />
@@ -602,7 +602,7 @@ function DiscussionDetailInner({ slug }: { slug: string }) {
 
             <button
               onClick={handleShare}
-              className="flex items-center gap-1.5 bg-white dark:bg-zinc-800 border-2 border-zinc-900 dark:border-zinc-700 text-zinc-900 dark:text-white px-3 py-1.5 rounded-xl shadow-[2px_2px_0px_0px_#18181b] hover:bg-zinc-100 transition-transform active:translate-x-0.5 active:translate-y-0.5"
+              className="flex items-center gap-1.5 bg-white dark:bg-zinc-800 border-2 border-zinc-900 dark:border-zinc-700 text-zinc-900 dark:text-white px-3 py-1.5 rounded-xl shadow-[2px_2px_0px_0px_#18181b] hover:bg-[#42ed91] hover:text-zinc-900 dark:hover:bg-[#42ed91] dark:hover:text-zinc-900 transition-all active:translate-x-0.5 active:translate-y-0.5"
               title="Copy link to clipboard"
             >
               {copied ? <Check className="h-4 w-4 text-[#42ed91]" /> : <Share2 className="h-4 w-4" />}

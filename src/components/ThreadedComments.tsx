@@ -278,7 +278,7 @@ function CommentItem({
         {user && comment.depth < 5 && (
           <button
             onClick={() => setIsReplying(!isReplying)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-zinc-900 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#18181b] hover:bg-zinc-100 transition-transform active:translate-x-0.5 active:translate-y-0.5"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-zinc-900 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#18181b] hover:bg-[#42ed91] hover:text-zinc-900 dark:hover:bg-[#42ed91] dark:hover:text-zinc-900 transition-all active:translate-x-0.5 active:translate-y-0.5"
           >
             <CornerDownRight className="h-3.5 w-3.5 stroke-[2.5]" />
             <span>Reply</span>

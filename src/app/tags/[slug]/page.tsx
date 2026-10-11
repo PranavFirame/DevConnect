@@ -86,7 +86,7 @@ function TagDetailInner({ slug }: { slug: string }) {
     <div className="max-w-4xl mx-auto space-y-6">
       <Link
         href="/tags"
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border-2 border-zinc-900 dark:border-zinc-700 text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white shadow-[2px_2px_0px_0px_#18181b] hover:bg-zinc-100 transition-transform active:translate-x-0.5 active:translate-y-0.5"
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border-2 border-zinc-900 dark:border-zinc-700 text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white shadow-[2px_2px_0px_0px_#18181b] hover:bg-[#42ed91] hover:text-zinc-900 dark:hover:bg-[#42ed91] dark:hover:text-zinc-900 transition-all active:translate-x-0.5 active:translate-y-0.5"
       >
         <ArrowLeft className="h-4 w-4 stroke-[2.5]" />
         <span>All Tags</span>

@@ -105,7 +105,7 @@ export default function NewDiscussionPage() {
         <div className="flex items-center gap-4">
           <Link
             href="/discussions"
-            className="p-2.5 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white border-2 border-zinc-900 dark:border-zinc-700 rounded-xl hover:bg-zinc-100 shadow-[2px_2px_0px_0px_#18181b] transition-transform active:translate-x-0.5 active:translate-y-0.5"
+            className="p-2.5 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white border-2 border-zinc-900 dark:border-zinc-700 rounded-xl hover:bg-[#42ed91] hover:text-zinc-900 dark:hover:bg-[#42ed91] dark:hover:text-zinc-900 shadow-[2px_2px_0px_0px_#18181b] transition-all active:translate-x-0.5 active:translate-y-0.5"
             title="Back to Discussions"
           >
             <ArrowLeft className="h-5 w-5 stroke-[2.5]" />
