@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Sidebar } from '@/components/Sidebar';
 import { DiscussionCard, DiscussionCardProps } from '@/components/DiscussionCard';
-import { Plus, Filter, Flame, HelpCircle, ArrowRight, Code2, Users } from 'lucide-react';
+import { Sparkles, Flame, HelpCircle, PlusCircle, Filter, Zap, ArrowRight } from 'lucide-react';
 
 export default function HomePage() {
   const [discussions, setDiscussions] = useState<DiscussionCardProps[]>([]);
@@ -78,62 +78,61 @@ export default function HomePage() {
   }, [activeTab]);
 
   return (
-    <div className="flex gap-7 lg:gap-8 items-start">
-      {/* Left Sidebar */}
+    <div className="flex gap-8">
+      {/* Sidebar for Navigation and Popular Tags */}
       <Sidebar popularTags={popularTags} />
 
-      {/* Main Column */}
+      {/* Main Discussion Feed */}
       <div className="flex-1 min-w-0 space-y-6">
-        {/* Balanced, Professional Hero Section */}
-        <section className="dev-card p-6 sm:p-8 bg-gradient-to-r from-white via-white to-[#FDF4F6] dark:from-[#16181E] dark:via-[#16181E] dark:to-[#1E171B] border border-[#E5E7EB] dark:border-[#282C37] relative overflow-hidden">
+        {/* Banner hero inspired by FlowFest lively typography and festival feel */}
+        <div className="relative overflow-hidden rounded-3xl bg-[#ffe5dd] dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 p-6 sm:p-9 text-zinc-900 dark:text-white shadow-[4px_4px_0px_0px_#18181b]">
           <div className="relative z-10 max-w-xl">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-[#F45170] bg-[#FFEAEF] dark:bg-[#2D1820] mb-3.5">
-              THE DEVELOPER COMMUNITY
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-[#ffb800] border-2 border-zinc-900 text-zinc-900 mb-3 shadow-[2px_2px_0px_0px_#18181b]">
+              <Sparkles className="h-3.5 w-3.5" />
+              Community Festival of Code
             </span>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-[2rem] font-extrabold text-[#17181D] dark:text-white tracking-tight leading-tight mb-2.5">
-              Where developers <span className="text-[#F45170]">connect</span>, discuss, and build together.
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-3 leading-tight">
+              Where Developers <span className="text-[#f25774]">Connect</span>, Discuss, and Build Together.
             </h1>
 
-            <p className="text-sm text-[#697386] dark:text-[#9CA3AF] leading-relaxed mb-6 font-normal">
-              Share code, discuss architecture, and find practical solutions with developers around the world.
+            <p className="text-zinc-700 dark:text-zinc-300 text-sm sm:text-base font-medium leading-relaxed mb-6">
+              Drop your code questions, share architecture deep dives, and exchange solutions with developers worldwide.
             </p>
 
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="/discussions/new"
-                className="btn-primary py-2 px-4.5 text-xs font-semibold shadow-sm"
+                className="inline-flex items-center gap-2 bg-[#f25774] hover:bg-[#e03e5c] text-white font-black text-xs uppercase tracking-wider px-5 py-3 rounded-xl brutal-btn"
               >
-                <Plus className="h-4 w-4 stroke-[2.5]" />
+                <PlusCircle className="h-4 w-4" />
                 <span>Start a Discussion</span>
               </Link>
               <Link
                 href="/tags"
-                className="btn-secondary py-2 px-4 text-xs font-semibold"
+                className="inline-flex items-center gap-1.5 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl border-2 border-zinc-900 hover:bg-[#fff4d1] transition-colors shadow-[2px_2px_0px_0px_#18181b]"
               >
-                <span>Explore Topics</span>
-                <ArrowRight className="h-3.5 w-3.5 text-[#697386]" />
+                <span>Browse Topics</span>
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
 
-          {/* Purposeful subtle technical decoration */}
-          <div className="hidden sm:flex absolute right-6 top-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-[#FCD5DE]/60 dark:border-[#38202A] items-center justify-center pointer-events-none opacity-80">
-            <div className="w-32 h-32 rounded-full border border-[#FCD5DE] dark:border-[#38202A] flex items-center justify-center">
-              <Code2 className="h-10 w-10 text-[#F45170]/40 stroke-[1.5]" />
-            </div>
+          {/* Retro-styled sun graphic backdrop */}
+          <div className="absolute -right-10 -bottom-10 w-60 h-60 rounded-full bg-[#ffb800]/20 border-4 border-dashed border-[#ffb800]/40 pointer-events-none flex items-center justify-center">
+            <div className="w-40 h-40 rounded-full bg-[#f25774]/20 border-2 border-[#f25774]/40" />
           </div>
-        </section>
+        </div>
 
-        {/* Clean Feed Toolbar */}
-        <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-[#282C37] pb-3">
-          <div className="flex items-center gap-1 bg-[#EBECEF] dark:bg-[#1E2129] p-1 rounded-xl">
+        {/* Feed Filter Tabs */}
+        <div className="flex items-center justify-between border-b-2 border-zinc-900 dark:border-zinc-800 pb-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab('newest')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
                 activeTab === 'newest'
-                  ? 'bg-white dark:bg-[#16181E] text-[#17181D] dark:text-white shadow-xs'
-                  : 'text-[#697386] dark:text-[#9CA3AF] hover:text-[#17181D]'
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-[2px_2px_0px_0px_#f25774]'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 border border-transparent'
               }`}
             >
               <Filter className="h-3.5 w-3.5" />
@@ -141,21 +140,21 @@ export default function HomePage() {
             </button>
             <button
               onClick={() => setActiveTab('popular')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
                 activeTab === 'popular'
-                  ? 'bg-white dark:bg-[#16181E] text-[#17181D] dark:text-white shadow-xs'
-                  : 'text-[#697386] dark:text-[#9CA3AF] hover:text-[#17181D]'
+                  ? 'bg-[#f25774] text-white shadow-[2px_2px_0px_0px_#18181b]'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 border border-transparent'
               }`}
             >
-              <Flame className="h-3.5 w-3.5 text-[#F45170]" />
+              <Flame className="h-3.5 w-3.5" />
               <span>Top Posts</span>
             </button>
             <button
               onClick={() => setActiveTab('unanswered')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
                 activeTab === 'unanswered'
-                  ? 'bg-white dark:bg-[#16181E] text-[#17181D] dark:text-white shadow-xs'
-                  : 'text-[#697386] dark:text-[#9CA3AF] hover:text-[#17181D]'
+                  ? 'bg-[#ffb800] text-zinc-900 border-2 border-zinc-900 shadow-[2px_2px_0px_0px_#18181b]'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 border border-transparent'
               }`}
             >
               <HelpCircle className="h-3.5 w-3.5" />
@@ -163,33 +162,33 @@ export default function HomePage() {
             </button>
           </div>
 
-          <span className="text-xs font-medium text-[#697386] dark:text-[#9CA3AF] hidden sm:inline">
-            {discussions.length} discussions
+          <span className="text-xs font-black text-zinc-400 uppercase tracking-wider hidden sm:inline">
+            {discussions.length} Discussions
           </span>
         </div>
 
-        {/* Discussion Cards Feed */}
+        {/* Discussion List */}
         {loading ? (
-          <div className="space-y-3.5">
+          <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 rounded-2xl bg-white dark:bg-[#16181E] border border-[#E5E7EB] dark:border-[#282C37] animate-pulse" />
+              <div key={i} className="h-32 rounded-2xl bg-[#f4f0e6] dark:bg-zinc-800 border-2 border-zinc-900 animate-pulse" />
             ))}
           </div>
         ) : discussions.length > 0 ? (
-          <div className="space-y-3.5">
+          <div className="space-y-4">
             {discussions.map((d) => (
               <DiscussionCard key={d.id} {...d} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 dev-card p-8">
-            <h3 className="font-bold text-[#17181D] dark:text-white mb-1 text-sm">No discussions yet</h3>
-            <p className="text-xs text-[#697386] dark:text-[#9CA3AF] mb-4">Start the conversation and share an insight or question.</p>
+          <div className="text-center py-12 bg-white dark:bg-zinc-900 border-2 border-zinc-900 rounded-2xl p-8 shadow-[4px_4px_0px_0px_#18181b]">
+            <h3 className="font-black text-zinc-900 dark:text-white mb-1">No discussions found</h3>
+            <p className="text-xs text-zinc-500 mb-4 font-medium">Be the first developer to start a conversation in this topic.</p>
             <Link
               href="/discussions/new"
-              className="btn-primary py-2 px-4 text-xs font-semibold"
+              className="inline-flex items-center gap-1.5 bg-[#f25774] text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider brutal-btn"
             >
-              Start a Discussion
+              Create Discussion
             </Link>
           </div>
         )}

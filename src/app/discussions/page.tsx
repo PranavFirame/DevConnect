@@ -4,7 +4,7 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
 import { DiscussionCard, DiscussionCardProps } from '@/components/DiscussionCard';
-import { MessageSquare, Filter } from 'lucide-react';
+import { MessageSquare, Flame, HelpCircle, Filter } from 'lucide-react';
 
 function DiscussionsContent() {
   const searchParams = useSearchParams();
@@ -85,70 +85,83 @@ function DiscussionsContent() {
     <div className="flex gap-8">
       <Sidebar popularTags={popularTags} />
 
-      <div className="flex-1 min-w-0 space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+      <div className="flex-1 min-w-0 space-y-6">
+        {/* Banner header in FlowFest warm peach & neo-brutalist style */}
+        <div className="bg-[#ffe5dd] dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-3xl p-6 sm:p-7 shadow-[4px_4px_0px_0px_#18181b] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <MessageSquare className="h-6 w-6 text-blue-600" />
-              <span>All Discussions</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-[#ffb800] border-2 border-zinc-900 text-zinc-900 mb-2 shadow-[2px_2px_0px_0px_#18181b]">
+              <MessageSquare className="h-3.5 w-3.5" />
+              Community Discussions
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
+              All Technical Discussions
             </h1>
-            <p className="text-sm text-slate-500 mt-0.5">
-              Explore technical debates, architecture reviews, and questions.
+            <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 font-medium mt-1">
+              Explore technical debates, architectural questions, and peer-reviewed code.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            {selectedTag && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-                <span>Tag: #{selectedTag}</span>
-                <button
-                  onClick={() => setSelectedTag('')}
-                  className="hover:text-blue-900 font-bold ml-1"
-                >
-                  ×
-                </button>
-              </span>
-            )}
-
-            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg text-xs font-medium">
+          {selectedTag && (
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border-2 border-zinc-900 font-bold text-xs shadow-[2px_2px_0px_0px_#18181b]">
+              <span>Tag: #{selectedTag}</span>
               <button
-                onClick={() => setSort('newest')}
-                className={`px-3 py-1.5 rounded-md transition-colors ${
-                  sort === 'newest'
-                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400'
-                }`}
+                onClick={() => setSelectedTag('')}
+                className="hover:text-[#f25774] font-black text-sm ml-1"
               >
-                Newest
-              </button>
-              <button
-                onClick={() => setSort('popular')}
-                className={`px-3 py-1.5 rounded-md transition-colors ${
-                  sort === 'popular'
-                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                Top
-              </button>
-              <button
-                onClick={() => setSort('unanswered')}
-                className={`px-3 py-1.5 rounded-md transition-colors ${
-                  sort === 'unanswered'
-                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400'
-                }`}
-              >
-                Unanswered
+                ×
               </button>
             </div>
-          </div>
+          )}
         </div>
 
+        {/* Filter Tabs */}
+        <div className="flex items-center justify-between border-b-2 border-zinc-900 dark:border-zinc-800 pb-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSort('newest')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                sort === 'newest'
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-[2px_2px_0px_0px_#f25774]'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
+              }`}
+            >
+              <Filter className="h-3.5 w-3.5" />
+              <span>Newest</span>
+            </button>
+            <button
+              onClick={() => setSort('popular')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                sort === 'popular'
+                  ? 'bg-[#f25774] text-white shadow-[2px_2px_0px_0px_#18181b]'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
+              }`}
+            >
+              <Flame className="h-3.5 w-3.5" />
+              <span>Top Posts</span>
+            </button>
+            <button
+              onClick={() => setSort('unanswered')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                sort === 'unanswered'
+                  ? 'bg-[#ffb800] text-zinc-900 border-2 border-zinc-900 shadow-[2px_2px_0px_0px_#18181b]'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900'
+              }`}
+            >
+              <HelpCircle className="h-3.5 w-3.5" />
+              <span>Unanswered</span>
+            </button>
+          </div>
+
+          <span className="text-xs font-black text-zinc-400 uppercase tracking-wider hidden sm:inline">
+            {discussions.length} Discussions
+          </span>
+        </div>
+
+        {/* Discussions List */}
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
+              <div key={i} className="h-32 rounded-2xl bg-[#f4f0e6] dark:bg-zinc-800 border-2 border-zinc-900 animate-pulse" />
             ))}
           </div>
         ) : discussions.length > 0 ? (
@@ -158,8 +171,8 @@ function DiscussionsContent() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8">
-            <p className="text-sm text-slate-500">No discussions match your filter criteria.</p>
+          <div className="text-center py-12 bg-white dark:bg-zinc-900 border-2 border-zinc-900 rounded-2xl p-8 shadow-[4px_4px_0px_0px_#18181b]">
+            <p className="text-sm font-bold text-zinc-600 dark:text-zinc-300">No discussions match your filter criteria.</p>
           </div>
         )}
       </div>
@@ -169,7 +182,7 @@ function DiscussionsContent() {
 
 export default function DiscussionsPage() {
   return (
-    <Suspense fallback={<div className="h-40 rounded-xl bg-slate-200 animate-pulse" />}>
+    <Suspense fallback={<div className="h-40 rounded-2xl bg-[#f4f0e6] animate-pulse border-2 border-zinc-900" />}>
       <DiscussionsContent />
     </Suspense>
   );

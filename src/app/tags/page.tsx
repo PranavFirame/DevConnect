@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Hash, TrendingUp, MessageSquare } from 'lucide-react';
+import { Sidebar } from '@/components/Sidebar';
+import { Hash, MessageSquare, Sparkles, Flame } from 'lucide-react';
 
 interface TagData {
   id: string;
@@ -58,63 +59,72 @@ export default function TagsPage() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E7EB] pb-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-[#17181D] flex items-center gap-2">
-            <Hash className="h-6 w-6 text-[#F45170]" />
-            <span>Explore Technical Tags</span>
-          </h1>
-          <p className="text-sm text-[#697386] mt-1">
-            Browse through frameworks, languages, databases, and architectural concepts.
-          </p>
+    <div className="flex gap-8">
+      <Sidebar popularTags={tags.slice(0, 8)} />
+
+      <div className="flex-1 min-w-0 space-y-6">
+        {/* Banner header in FlowFest warm peach & neo-brutalist style */}
+        <div className="bg-[#ffe5dd] dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-3xl p-6 sm:p-7 shadow-[4px_4px_0px_0px_#18181b] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-[#ffb800] border-2 border-zinc-900 text-zinc-900 mb-2 shadow-[2px_2px_0px_0px_#18181b]">
+              <Hash className="h-3.5 w-3.5" />
+              Topic Catalog
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
+              Explore Technical Tags
+            </h1>
+            <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 font-medium mt-1">
+              Browse frameworks, languages, system architecture, and database topics.
+            </p>
+          </div>
+
+          <input
+            type="text"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Filter tags..."
+            className="bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-xl px-4 py-2 text-sm font-bold shadow-[2px_2px_0px_0px_#18181b] focus:outline-none"
+          />
         </div>
 
-        <input
-          type="text"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder="Filter tags..."
-          className="bg-white border border-[#E5E7EB] rounded-xl px-3.5 py-2 text-sm text-[#17181D] placeholder:text-[#697386] focus:outline-none focus:ring-2 focus:ring-[#F45170]/30 focus:border-[#F45170] transition-all shadow-xs"
-        />
+        {/* Tags Grid */}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="h-32 rounded-2xl bg-[#f4f0e6] dark:bg-zinc-800 border-2 border-zinc-900 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((t) => (
+              <Link
+                key={t.id}
+                href={`/tags/${t.slug}`}
+                className="group bg-white dark:bg-zinc-900 border-2 border-zinc-900 dark:border-zinc-700 rounded-2xl p-5 brutal-card flex flex-col justify-between"
+              >
+                <div>
+                  <span className="inline-block px-3 py-1 text-xs font-black uppercase tracking-wider rounded-lg bg-[#fff4d1] text-zinc-900 border border-zinc-900 mb-2.5">
+                    #{t.name}
+                  </span>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-relaxed font-medium">
+                    {t.description || 'Community discussions and developer insights.'}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between text-xs font-bold text-zinc-500 pt-3 border-t-2 border-zinc-100 dark:border-zinc-800 mt-3">
+                  <span className="flex items-center gap-1.5">
+                    <MessageSquare className="h-3.5 w-3.5 text-[#f25774]" />
+                    <span>{t.postCount} posts</span>
+                  </span>
+                  <span className="text-[#f25774] font-black uppercase tracking-wider text-[11px] group-hover:translate-x-1 transition-transform">
+                    Explore →
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
-
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="h-28 rounded-xl bg-slate-200 animate-pulse" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filtered.map((t) => (
-            <Link
-              key={t.id}
-              href={`/tags/${t.slug}`}
-              className="group dev-card p-4.5 hover:border-[#F45170] transition-all flex flex-col justify-between"
-            >
-              <div>
-                <span className="badge-tag mb-2.5 inline-block">
-                  #{t.name}
-                </span>
-                <p className="text-xs text-[#697386] line-clamp-2 leading-relaxed">
-                  {t.description || 'Community discussion topic.'}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-[#697386] pt-3 border-t border-[#E5E7EB] mt-3">
-                <span className="flex items-center gap-1.5 font-medium">
-                  <MessageSquare className="h-3.5 w-3.5 text-slate-400" />
-                  <span>{t.postCount} posts</span>
-                </span>
-                <span className="text-[#F45170] font-semibold text-[11px] group-hover:translate-x-0.5 transition-transform">
-                  Explore →
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
