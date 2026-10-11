@@ -615,9 +615,9 @@ function DiscussionDetailInner({ slug }: { slug: string }) {
       {/* Discussion Replies / Threaded Conversations section */}
       <section id="replies" className="space-y-6 pt-4">
         <div className="flex items-center justify-between border-b-2 border-zinc-900 dark:border-zinc-800 pb-3">
-          <h2 className="text-xl font-black text-zinc-900 dark:text-white flex items-center gap-2">
+          <h2 className="text-xl font-black text-black flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-[#42ed91]" />
-            <span>Replies ({comments.length})</span>
+            <span className="text-black">Replies ({comments.length})</span>
           </h2>
         </div>
 

@@ -6,6 +6,13 @@ import { Navbar } from '@/components/Navbar';
 export const metadata: Metadata = {
   title: 'DevConnect — Where Developers Connect, Discuss, and Build Together',
   description: 'A modern full-stack developer community platform for sharing discussions, solving technical challenges, and collaborating on code.',
+  icons: {
+    icon: [
+      { url: '/devconnect-icon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/devconnect-icon.svg',
+    apple: '/devconnect-icon.svg',
+  },
 };
 
 export default function RootLayout({
