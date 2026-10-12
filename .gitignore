@@ -46,3 +46,5 @@ next-env.d.ts
 .claude/
 .cursor/
 .devin/
+AGENTS.md
+ARCHITECTURE.md
