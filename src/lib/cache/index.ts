@@ -1,7 +1,14 @@
 import { Redis } from '@upstash/redis';
 
-// In-memory fallback cache for when Redis credentials are not configured or when operating locally
-class MemoryCache {
+interface CacheInterface {
+  get<T>(key: string): Promise<T | null>;
+  set(key: string, value: unknown, options?: { ex?: number }): Promise<unknown>;
+  del(key: string): Promise<unknown>;
+  ping?(): Promise<string>;
+}
+
+// In-memory fallback cache for development or when Redis is unconfigured
+class MemoryCache implements CacheInterface {
   private store = new Map<string, { value: string; expiresAt: number | null }>();
 
   async get<T>(key: string): Promise<T | null> {
@@ -33,29 +40,62 @@ class MemoryCache {
   async flushall(): Promise<void> {
     this.store.clear();
   }
+
+  async ping(): Promise<string> {
+    return 'PONG';
+  }
 }
 
-interface CacheInterface {
-  get<T>(key: string): Promise<T | null>;
-  set(key: string, value: unknown, options?: { ex?: number }): Promise<unknown>;
-  del(key: string): Promise<unknown>;
-}
-
-const hasUpstash = Boolean(
+const isUpstashConfigured = Boolean(
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
 );
 
+let rawRedis: Redis | null = null;
 let cacheInstance: CacheInterface;
 
-if (hasUpstash) {
+if (isUpstashConfigured) {
   try {
-    const redis = new Redis({
+    rawRedis = new Redis({
       url: process.env.UPSTASH_REDIS_REST_URL!,
       token: process.env.UPSTASH_REDIS_REST_TOKEN!,
     });
-    cacheInstance = redis;
+
+    // Resilient Redis proxy: if Upstash ever fails or times out,
+    // it never throws fatal errors that could break queries or writes.
+    cacheInstance = {
+      async get<T>(key: string): Promise<T | null> {
+        try {
+          return await rawRedis!.get<T>(key);
+        } catch (err) {
+          console.warn('[Cache] Redis get error:', err);
+          return null;
+        }
+      },
+      async set(key: string, value: unknown, options?: { ex?: number }): Promise<unknown> {
+        try {
+          if (options && typeof options.ex === 'number') {
+            return await rawRedis!.set(key, value, { ex: options.ex });
+          }
+          return await rawRedis!.set(key, value);
+        } catch (err) {
+          console.warn('[Cache] Redis set error:', err);
+          return null;
+        }
+      },
+      async del(key: string): Promise<unknown> {
+        try {
+          return await rawRedis!.del(key);
+        } catch (err) {
+          console.warn('[Cache] Redis del error:', err);
+          return 0;
+        }
+      },
+      async ping(): Promise<string> {
+        return await rawRedis!.ping();
+      },
+    };
   } catch (err) {
-    console.warn('[Cache] Failed to initialize Upstash Redis, falling back to MemoryCache:', err);
+    console.warn('[Cache] Failed to initialize Upstash Redis client:', err);
     cacheInstance = new MemoryCache();
   }
 } else {
@@ -63,4 +103,5 @@ if (hasUpstash) {
 }
 
 export const cache = cacheInstance;
-export const isRedisEnabled = hasUpstash;
+export const isRedisConfigured = isUpstashConfigured;
+export { isUpstashConfigured as isRedisEnabled };

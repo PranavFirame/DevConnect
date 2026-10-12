@@ -1,5 +1,5 @@
 import { TokenPayload, verifyToken, extractTokenFromHeader, SESSION_COOKIE_NAME } from '@/lib/auth';
-import prisma, { isDatabaseAvailable } from '@/lib/db/prisma';
+import prisma from '@/lib/db/prisma';
 import { cache } from '@/lib/cache';
 
 export interface GraphQLContext {
@@ -7,7 +7,6 @@ export interface GraphQLContext {
   prisma: typeof prisma;
   cache: typeof cache;
   token?: string | null;
-  isDbAvailable: () => Promise<boolean>;
 }
 
 export async function createContext(request: Request): Promise<GraphQLContext> {
@@ -38,6 +37,5 @@ export async function createContext(request: Request): Promise<GraphQLContext> {
     prisma,
     cache,
     token,
-    isDbAvailable: isDatabaseAvailable,
   };
 }

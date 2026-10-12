@@ -1,6 +1,5 @@
 import { GraphQLContext } from './context';
 import { hashPassword, comparePassword, signToken } from '@/lib/auth';
-import { memoryDb, MockUser, MockDiscussion, MockComment, MockTag } from '@/lib/db/memoryDb';
 import {
   registerSchema,
   loginSchema,
@@ -25,82 +24,42 @@ export const resolvers = {
     me: async (_: unknown, __: unknown, ctx: GraphQLContext) => {
       if (!ctx.currentUser) return null;
 
-      try {
-        const user = await ctx.prisma.user.findUnique({
-          where: { id: ctx.currentUser.userId },
-          include: {
-            _count: {
-              select: { discussions: true, comments: true },
-            },
+      const user = await ctx.prisma.user.findUnique({
+        where: { id: ctx.currentUser.userId },
+        include: {
+          _count: {
+            select: { discussions: true, comments: true },
           },
-        });
-        if (user) {
-          return {
-            ...user,
-            discussionsCount: user._count.discussions,
-            commentsCount: user._count.comments,
-            createdAt: user.createdAt.toISOString(),
-          };
-        }
-      } catch {
-        // Fallback to memoryDb
-      }
+        },
+      });
 
-      const memUser = memoryDb.users.get(ctx.currentUser.userId);
-      if (!memUser) return null;
-
-      const userDiscussions = Array.from(memoryDb.discussions.values()).filter(
-        (d) => d.authorId === memUser.id
-      ).length;
-      const userComments = Array.from(memoryDb.comments.values()).filter(
-        (c) => c.authorId === memUser.id
-      ).length;
+      if (!user) return null;
 
       return {
-        ...memUser,
-        discussionsCount: userDiscussions,
-        commentsCount: userComments,
-        createdAt: memUser.createdAt.toISOString(),
+        ...user,
+        discussionsCount: user._count.discussions,
+        commentsCount: user._count.comments,
+        createdAt: user.createdAt.toISOString(),
       };
     },
 
     user: async (_: unknown, { username }: { username: string }, ctx: GraphQLContext) => {
-      try {
-        const user = await ctx.prisma.user.findUnique({
-          where: { username },
-          include: {
-            _count: {
-              select: { discussions: true, comments: true },
-            },
+      const user = await ctx.prisma.user.findUnique({
+        where: { username },
+        include: {
+          _count: {
+            select: { discussions: true, comments: true },
           },
-        });
-        if (user) {
-          return {
-            ...user,
-            discussionsCount: user._count.discussions,
-            commentsCount: user._count.comments,
-            createdAt: user.createdAt.toISOString(),
-          };
-        }
-      } catch {
-        // Fallback
-      }
+        },
+      });
 
-      const memUser = Array.from(memoryDb.users.values()).find((u) => u.username === username);
-      if (!memUser) return null;
-
-      const userDiscussions = Array.from(memoryDb.discussions.values()).filter(
-        (d) => d.authorId === memUser.id
-      ).length;
-      const userComments = Array.from(memoryDb.comments.values()).filter(
-        (c) => c.authorId === memUser.id
-      ).length;
+      if (!user) return null;
 
       return {
-        ...memUser,
-        discussionsCount: userDiscussions,
-        commentsCount: userComments,
-        createdAt: memUser.createdAt.toISOString(),
+        ...user,
+        discussionsCount: user._count.discussions,
+        commentsCount: user._count.comments,
+        createdAt: user.createdAt.toISOString(),
       };
     },
 
@@ -115,144 +74,38 @@ export const resolvers = {
       }: { page?: number; limit?: number; sort?: string; tag?: string; author?: string },
       ctx: GraphQLContext
     ) => {
-      try {
-        const skip = Math.max(0, (page - 1) * limit);
-        const take = Math.min(50, Math.max(1, limit));
+      const skip = Math.max(0, (page - 1) * limit);
+      const take = Math.min(50, Math.max(1, limit));
 
-        const where: Record<string, unknown> = {};
-        if (author) {
-          where.author = { username: author };
-        }
-        if (tag) {
-          where.tags = {
-            some: {
-              tag: { slug: tag },
-            },
-          };
-        }
-
-        const orderBy: Record<string, 'asc' | 'desc'>[] = [{ pinned: 'desc' }];
-        if (sort === 'popular' || sort === 'top') {
-          orderBy.push({ score: 'desc' });
-        } else if (sort === 'unanswered') {
-          where.solved = false;
-          where.commentsCount = 0;
-          orderBy.push({ createdAt: 'desc' });
-        } else {
-          orderBy.push({ createdAt: 'desc' });
-        }
-
-        const [discussions, totalCount] = await Promise.all([
-          ctx.prisma.discussion.findMany({
-            where,
-            skip,
-            take,
-            orderBy,
-            include: {
-              author: true,
-              tags: { include: { tag: true } },
-              solvedComment: { include: { author: true } },
-              votes: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
-              bookmarks: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
-            },
-          }),
-          ctx.prisma.discussion.count({ where }),
-        ]);
-
-        const formatted = discussions.map((d) => ({
-          ...d,
-          createdAt: d.createdAt.toISOString(),
-          updatedAt: d.updatedAt.toISOString(),
-          tags: d.tags.map((t) => t.tag),
-          userVote: d.votes && d.votes.length > 0 ? d.votes[0].type : null,
-          isBookmarked: Boolean(d.bookmarks && d.bookmarks.length > 0),
-          solvedComment: d.solvedComment
-            ? {
-                ...d.solvedComment,
-                createdAt: d.solvedComment.createdAt.toISOString(),
-                updatedAt: d.solvedComment.updatedAt.toISOString(),
-              }
-            : null,
-        }));
-
-        return {
-          discussions: formatted,
-          totalCount,
-          hasMore: skip + take < totalCount,
-        };
-      } catch {
-        // Fallback to in-memory store
-        let all = Array.from(memoryDb.discussions.values());
-
-        if (author) {
-          const userObj = Array.from(memoryDb.users.values()).find((u) => u.username === author);
-          all = all.filter((d) => d.authorId === userObj?.id);
-        }
-
-        if (tag) {
-          const tagObj = Array.from(memoryDb.tags.values()).find((t) => t.slug === tag);
-          all = all.filter((d) => tagObj && d.tagIds.includes(tagObj.id));
-        }
-
-        if (sort === 'popular' || sort === 'top') {
-          all.sort((a, b) => b.score - a.score);
-        } else if (sort === 'unanswered') {
-          all = all.filter((d) => !d.solved && d.commentsCount === 0);
-          all.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-        } else {
-          all.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || b.createdAt.getTime() - a.createdAt.getTime());
-        }
-
-        const skip = Math.max(0, (page - 1) * limit);
-        const take = Math.min(50, Math.max(1, limit));
-        const paged = all.slice(skip, skip + take);
-
-        const formatted = paged.map((d) => {
-          const authorUser = memoryDb.users.get(d.authorId)!;
-          const discussionTags = d.tagIds
-            .map((id) => memoryDb.tags.get(id))
-            .filter((t): t is MockTag => Boolean(t));
-
-          const userVoteObj = ctx.currentUser
-            ? Array.from(memoryDb.votes.values()).find(
-                (v) => v.userId === ctx.currentUser?.userId && v.discussionId === d.id
-              )
-            : null;
-
-          const isBookmarked = ctx.currentUser
-            ? Array.from(memoryDb.bookmarks.values()).some(
-                (b) => b.userId === ctx.currentUser?.userId && b.discussionId === d.id
-              )
-            : false;
-
-          return {
-            ...d,
-            createdAt: d.createdAt.toISOString(),
-            updatedAt: d.updatedAt.toISOString(),
-            author: authorUser,
-            tags: discussionTags,
-            userVote: userVoteObj ? userVoteObj.type : null,
-            isBookmarked,
-            solvedComment: null,
-          };
-        });
-
-        return {
-          discussions: formatted,
-          totalCount: all.length,
-          hasMore: skip + take < all.length,
+      const where: Record<string, unknown> = {};
+      if (author) {
+        where.author = { username: author };
+      }
+      if (tag) {
+        where.tags = {
+          some: {
+            tag: { slug: tag },
+          },
         };
       }
-    },
 
-    discussion: async (
-      _: unknown,
-      { slug, id }: { slug?: string; id?: string },
-      ctx: GraphQLContext
-    ) => {
-      try {
-        const d = await ctx.prisma.discussion.findFirst({
-          where: slug ? { slug } : { id },
+      const orderBy: Record<string, 'asc' | 'desc'>[] = [{ pinned: 'desc' }];
+      if (sort === 'popular' || sort === 'top') {
+        orderBy.push({ score: 'desc' });
+      } else if (sort === 'unanswered') {
+        where.solved = false;
+        where.commentsCount = 0;
+        orderBy.push({ createdAt: 'desc' });
+      } else {
+        orderBy.push({ createdAt: 'desc' });
+      }
+
+      const [discussions, totalCount] = await Promise.all([
+        ctx.prisma.discussion.findMany({
+          where,
+          skip,
+          take,
+          orderBy,
           include: {
             author: true,
             tags: { include: { tag: true } },
@@ -260,60 +113,72 @@ export const resolvers = {
             votes: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
             bookmarks: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
           },
-        });
-        if (d) {
-          return {
-            ...d,
-            createdAt: d.createdAt.toISOString(),
-            updatedAt: d.updatedAt.toISOString(),
-            tags: d.tags.map((t) => t.tag),
-            userVote: d.votes && d.votes.length > 0 ? d.votes[0].type : null,
-            isBookmarked: Boolean(d.bookmarks && d.bookmarks.length > 0),
-            solvedComment: d.solvedComment
-              ? {
-                  ...d.solvedComment,
-                  createdAt: d.solvedComment.createdAt.toISOString(),
-                  updatedAt: d.solvedComment.updatedAt.toISOString(),
-                }
-              : null,
-          };
-        }
-      } catch {
-        // Fallback
-      }
+        }),
+        ctx.prisma.discussion.count({ where }),
+      ]);
 
-      const d = Array.from(memoryDb.discussions.values()).find(
-        (item) => (slug && item.slug === slug) || (id && item.id === id)
-      );
-      if (!d) return null;
-
-      d.viewsCount += 1;
-      const authorUser = memoryDb.users.get(d.authorId)!;
-      const tags = d.tagIds
-        .map((tId) => memoryDb.tags.get(tId))
-        .filter((t): t is MockTag => Boolean(t));
-
-      const userVoteObj = ctx.currentUser
-        ? Array.from(memoryDb.votes.values()).find(
-            (v) => v.userId === ctx.currentUser?.userId && v.discussionId === d.id
-          )
-        : null;
-
-      const isBookmarked = ctx.currentUser
-        ? Array.from(memoryDb.bookmarks.values()).some(
-            (b) => b.userId === ctx.currentUser?.userId && b.discussionId === d.id
-          )
-        : false;
-
-      return {
+      const formatted = discussions.map((d) => ({
         ...d,
         createdAt: d.createdAt.toISOString(),
         updatedAt: d.updatedAt.toISOString(),
-        author: authorUser,
-        tags,
-        userVote: userVoteObj ? userVoteObj.type : null,
-        isBookmarked,
-        solvedComment: null,
+        tags: d.tags.map((t) => t.tag),
+        userVote: d.votes && d.votes.length > 0 ? d.votes[0].type : null,
+        isBookmarked: Boolean(d.bookmarks && d.bookmarks.length > 0),
+        solvedComment: d.solvedComment
+          ? {
+              ...d.solvedComment,
+              createdAt: d.solvedComment.createdAt.toISOString(),
+              updatedAt: d.solvedComment.updatedAt.toISOString(),
+            }
+          : null,
+      }));
+
+      return {
+        discussions: formatted,
+        totalCount,
+        hasMore: skip + take < totalCount,
+      };
+    },
+
+    discussion: async (
+      _: unknown,
+      { slug, id }: { slug?: string; id?: string },
+      ctx: GraphQLContext
+    ) => {
+      const d = await ctx.prisma.discussion.findFirst({
+        where: slug ? { slug } : { id },
+        include: {
+          author: true,
+          tags: { include: { tag: true } },
+          solvedComment: { include: { author: true } },
+          votes: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
+          bookmarks: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
+        },
+      });
+
+      if (!d) return null;
+
+      // Increment view count in background
+      ctx.prisma.discussion.update({
+        where: { id: d.id },
+        data: { viewsCount: { increment: 1 } },
+      }).catch((err) => console.warn('[Discussion] View increment error:', err));
+
+      return {
+        ...d,
+        viewsCount: d.viewsCount + 1,
+        createdAt: d.createdAt.toISOString(),
+        updatedAt: d.updatedAt.toISOString(),
+        tags: d.tags.map((t) => t.tag),
+        userVote: d.votes && d.votes.length > 0 ? d.votes[0].type : null,
+        isBookmarked: Boolean(d.bookmarks && d.bookmarks.length > 0),
+        solvedComment: d.solvedComment
+          ? {
+              ...d.solvedComment,
+              createdAt: d.solvedComment.createdAt.toISOString(),
+              updatedAt: d.solvedComment.updatedAt.toISOString(),
+            }
+          : null,
       };
     },
 
@@ -322,84 +187,32 @@ export const resolvers = {
       { discussionId }: { discussionId: string },
       ctx: GraphQLContext
     ) => {
-      try {
-        const allComments = await ctx.prisma.comment.findMany({
-          where: { discussionId },
-          orderBy: [{ isAccepted: 'desc' }, { score: 'desc' }, { createdAt: 'asc' }],
-          include: {
-            author: true,
-            votes: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
-          },
-        });
+      const allComments = await ctx.prisma.comment.findMany({
+        where: { discussionId },
+        orderBy: [{ isAccepted: 'desc' }, { score: 'desc' }, { createdAt: 'asc' }],
+        include: {
+          author: true,
+          votes: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
+        },
+      });
 
-        if (allComments.length > 0) {
-          type CommentItem = (typeof allComments)[0] & {
-            replies: CommentItem[];
-            userVote: 'UPVOTE' | 'DOWNVOTE' | null;
-            createdAtFormatted: string;
-            updatedAtFormatted: string;
-          };
-
-          const map = new Map<string, CommentItem>();
-          const roots: CommentItem[] = [];
-
-          allComments.forEach((c) => {
-            map.set(c.id, {
-              ...c,
-              replies: [],
-              userVote: c.votes && c.votes.length > 0 ? c.votes[0].type : null,
-              createdAtFormatted: c.createdAt.toISOString(),
-              updatedAtFormatted: c.updatedAt.toISOString(),
-            });
-          });
-
-          map.forEach((item) => {
-            if (item.parentId && map.has(item.parentId)) {
-              map.get(item.parentId)!.replies.push(item);
-            } else {
-              roots.push(item);
-            }
-          });
-
-          return roots.map(function formatNode(node: CommentItem): Record<string, unknown> {
-            return {
-              ...node,
-              createdAt: node.createdAtFormatted,
-              updatedAt: node.updatedAtFormatted,
-              replies: node.replies.map(formatNode),
-            };
-          });
-        }
-      } catch {
-        // Fallback
-      }
-
-      const memComments = Array.from(memoryDb.comments.values()).filter(
-        (c) => c.discussionId === discussionId
-      );
-
-      type MemNode = MockComment & {
-        author: MockUser;
-        replies: MemNode[];
+      type CommentItem = (typeof allComments)[0] & {
+        replies: CommentItem[];
         userVote: 'UPVOTE' | 'DOWNVOTE' | null;
+        createdAtFormatted: string;
+        updatedAtFormatted: string;
       };
 
-      const map = new Map<string, MemNode>();
-      const roots: MemNode[] = [];
+      const map = new Map<string, CommentItem>();
+      const roots: CommentItem[] = [];
 
-      memComments.forEach((c) => {
-        const author = memoryDb.users.get(c.authorId)!;
-        const userVoteObj = ctx.currentUser
-          ? Array.from(memoryDb.votes.values()).find(
-              (v) => v.userId === ctx.currentUser?.userId && v.commentId === c.id
-            )
-          : null;
-
+      allComments.forEach((c) => {
         map.set(c.id, {
           ...c,
-          author,
           replies: [],
-          userVote: userVoteObj ? userVoteObj.type : null,
+          userVote: c.votes && c.votes.length > 0 ? c.votes[0].type : null,
+          createdAtFormatted: c.createdAt.toISOString(),
+          updatedAtFormatted: c.updatedAt.toISOString(),
         });
       });
 
@@ -411,11 +224,11 @@ export const resolvers = {
         }
       });
 
-      return roots.map(function formatNode(node: MemNode): Record<string, unknown> {
+      return roots.map(function formatNode(node: CommentItem): Record<string, unknown> {
         return {
           ...node,
-          createdAt: node.createdAt.toISOString(),
-          updatedAt: node.updatedAt.toISOString(),
+          createdAt: node.createdAtFormatted,
+          updatedAt: node.updatedAtFormatted,
           replies: node.replies.map(formatNode),
         };
       });
@@ -432,97 +245,61 @@ export const resolvers = {
       ctx: GraphQLContext
     ) => {
       const clean = query.trim().toLowerCase();
+      const skip = Math.max(0, (page - 1) * limit);
+      const take = Math.min(50, Math.max(1, limit));
 
-      try {
-        const skip = Math.max(0, (page - 1) * limit);
-        const take = Math.min(50, Math.max(1, limit));
-
-        const where: Record<string, unknown> = {};
-        if (clean) {
-          where.OR = [
-            { title: { contains: clean, mode: 'insensitive' } },
-            { content: { contains: clean, mode: 'insensitive' } },
-            { author: { username: { contains: clean, mode: 'insensitive' } } },
-            { tags: { some: { tag: { name: { contains: clean, mode: 'insensitive' } } } } },
-          ];
-        }
-        if (tag) {
-          where.tags = { some: { tag: { slug: tag } } };
-        }
-
-        const [discussions, totalCount] = await Promise.all([
-          ctx.prisma.discussion.findMany({
-            where,
-            skip,
-            take,
-            orderBy: { createdAt: 'desc' },
-            include: {
-              author: true,
-              tags: { include: { tag: true } },
-              votes: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
-              bookmarks: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
-            },
-          }),
-          ctx.prisma.discussion.count({ where }),
-        ]);
-
-        const formatted = discussions.map((d) => ({
-          ...d,
-          createdAt: d.createdAt.toISOString(),
-          updatedAt: d.updatedAt.toISOString(),
-          tags: d.tags.map((t) => t.tag),
-          userVote: d.votes && d.votes.length > 0 ? d.votes[0].type : null,
-          isBookmarked: Boolean(d.bookmarks && d.bookmarks.length > 0),
-        }));
-
-        return { discussions: formatted, totalCount };
-      } catch {
-        // Fallback
-        const all = Array.from(memoryDb.discussions.values()).filter((d) => {
-          const matchQuery =
-            !clean ||
-            d.title.toLowerCase().includes(clean) ||
-            d.content.toLowerCase().includes(clean);
-          return matchQuery;
-        });
-
-        const formatted = all.map((d) => ({
-          ...d,
-          createdAt: d.createdAt.toISOString(),
-          updatedAt: d.updatedAt.toISOString(),
-          author: memoryDb.users.get(d.authorId)!,
-          tags: d.tagIds.map((id) => memoryDb.tags.get(id)).filter(Boolean),
-          userVote: null,
-          isBookmarked: false,
-        }));
-
-        return { discussions: formatted, totalCount: all.length };
+      const where: Record<string, unknown> = {};
+      if (clean) {
+        where.OR = [
+          { title: { contains: clean, mode: 'insensitive' } },
+          { content: { contains: clean, mode: 'insensitive' } },
+          { author: { username: { contains: clean, mode: 'insensitive' } } },
+          { tags: { some: { tag: { name: { contains: clean, mode: 'insensitive' } } } } },
+        ];
       }
+      if (tag) {
+        where.tags = { some: { tag: { slug: tag } } };
+      }
+
+      const [discussions, totalCount] = await Promise.all([
+        ctx.prisma.discussion.findMany({
+          where,
+          skip,
+          take,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            author: true,
+            tags: { include: { tag: true } },
+            votes: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
+            bookmarks: ctx.currentUser ? { where: { userId: ctx.currentUser.userId } } : false,
+          },
+        }),
+        ctx.prisma.discussion.count({ where }),
+      ]);
+
+      const formatted = discussions.map((d) => ({
+        ...d,
+        createdAt: d.createdAt.toISOString(),
+        updatedAt: d.updatedAt.toISOString(),
+        tags: d.tags.map((t) => t.tag),
+        userVote: d.votes && d.votes.length > 0 ? d.votes[0].type : null,
+        isBookmarked: Boolean(d.bookmarks && d.bookmarks.length > 0),
+      }));
+
+      return { discussions: formatted, totalCount };
     },
 
     tags: async (_: unknown, { limit = 30 }: { limit?: number }, ctx: GraphQLContext) => {
-      try {
-        const tags = await ctx.prisma.tag.findMany({
-          take: limit,
-          orderBy: { postCount: 'desc' },
-        });
-        if (tags.length > 0) return tags;
-      } catch {
-        // Fallback
-      }
-
-      return Array.from(memoryDb.tags.values()).slice(0, limit);
+      const tags = await ctx.prisma.tag.findMany({
+        take: limit,
+        orderBy: { postCount: 'desc' },
+      });
+      return tags;
     },
 
     tag: async (_: unknown, { slug }: { slug: string }, ctx: GraphQLContext) => {
-      try {
-        const tag = await ctx.prisma.tag.findUnique({ where: { slug } });
-        if (tag) return tag;
-      } catch {
-        // Fallback
-      }
-
-      return Array.from(memoryDb.tags.values()).find((t) => t.slug === slug) || null;
+      const tag = await ctx.prisma.tag.findUnique({ where: { slug } });
+      return tag || null;
     },
 
     bookmarks: async (
@@ -532,54 +309,31 @@ export const resolvers = {
     ) => {
       if (!ctx.currentUser) throw new Error('Authentication required');
 
-      try {
-        const skip = Math.max(0, (page - 1) * limit);
-        const saved = await ctx.prisma.bookmark.findMany({
-          where: { userId: ctx.currentUser.userId },
-          skip,
-          take: limit,
-          orderBy: { createdAt: 'desc' },
-          include: {
-            discussion: {
-              include: {
-                author: true,
-                tags: { include: { tag: true } },
-                votes: { where: { userId: ctx.currentUser.userId } },
-              },
+      const skip = Math.max(0, (page - 1) * limit);
+      const saved = await ctx.prisma.bookmark.findMany({
+        where: { userId: ctx.currentUser.userId },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          discussion: {
+            include: {
+              author: true,
+              tags: { include: { tag: true } },
+              votes: { where: { userId: ctx.currentUser.userId } },
             },
           },
-        });
+        },
+      });
 
-        return saved.map((b) => ({
-          ...b.discussion,
-          createdAt: b.discussion.createdAt.toISOString(),
-          updatedAt: b.discussion.updatedAt.toISOString(),
-          tags: b.discussion.tags.map((t) => t.tag),
-          userVote: b.discussion.votes.length > 0 ? b.discussion.votes[0].type : null,
-          isBookmarked: true,
-        }));
-      } catch {
-        // Fallback
-        const myBookmarks = Array.from(memoryDb.bookmarks.values()).filter(
-          (b) => b.userId === ctx.currentUser?.userId
-        );
-
-        return myBookmarks
-          .map((b) => {
-            const d = memoryDb.discussions.get(b.discussionId);
-            if (!d) return null;
-            return {
-              ...d,
-              createdAt: d.createdAt.toISOString(),
-              updatedAt: d.updatedAt.toISOString(),
-              author: memoryDb.users.get(d.authorId)!,
-              tags: d.tagIds.map((id) => memoryDb.tags.get(id)).filter(Boolean),
-              userVote: null,
-              isBookmarked: true,
-            };
-          })
-          .filter(Boolean);
-      }
+      return saved.map((b) => ({
+        ...b.discussion,
+        createdAt: b.discussion.createdAt.toISOString(),
+        updatedAt: b.discussion.updatedAt.toISOString(),
+        tags: b.discussion.tags.map((t) => t.tag),
+        userVote: b.discussion.votes.length > 0 ? b.discussion.votes[0].type : null,
+        isBookmarked: true,
+      }));
     },
 
     notifications: async (
@@ -589,43 +343,24 @@ export const resolvers = {
     ) => {
       if (!ctx.currentUser) throw new Error('Authentication required');
 
-      try {
-        const notifications = await ctx.prisma.notification.findMany({
-          where: { userId: ctx.currentUser.userId },
-          take: limit,
-          orderBy: { createdAt: 'desc' },
-          include: { actor: true },
-        });
+      const notifications = await ctx.prisma.notification.findMany({
+        where: { userId: ctx.currentUser.userId },
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: { actor: true },
+      });
 
-        return notifications.map((n) => ({
-          ...n,
-          createdAt: n.createdAt.toISOString(),
-        }));
-      } catch {
-        // Fallback
-        const userNotifs = Array.from(memoryDb.notifications.values())
-          .filter((n) => n.userId === ctx.currentUser?.userId)
-          .slice(0, limit);
-
-        return userNotifs.map((n) => ({
-          ...n,
-          createdAt: n.createdAt.toISOString(),
-          actor: n.actorId ? memoryDb.users.get(n.actorId) : null,
-        }));
-      }
+      return notifications.map((n) => ({
+        ...n,
+        createdAt: n.createdAt.toISOString(),
+      }));
     },
 
     unreadNotificationsCount: async (_: unknown, __: unknown, ctx: GraphQLContext) => {
       if (!ctx.currentUser) return 0;
-      try {
-        return await ctx.prisma.notification.count({
-          where: { userId: ctx.currentUser.userId, read: false },
-        });
-      } catch {
-        return Array.from(memoryDb.notifications.values()).filter(
-          (n) => n.userId === ctx.currentUser?.userId && !n.read
-        ).length;
-      }
+      return await ctx.prisma.notification.count({
+        where: { userId: ctx.currentUser.userId, read: false },
+      });
     },
 
     reports: async (
@@ -637,31 +372,20 @@ export const resolvers = {
         throw new Error('Access denied: Moderator or Admin privileges required');
       }
 
-      try {
-        const reports = await ctx.prisma.report.findMany({
-          where: status ? { status } : undefined,
-          orderBy: { createdAt: 'desc' },
-          include: {
-            reporter: true,
-            discussion: { include: { author: true } },
-            comment: { include: { author: true } },
-          },
-        });
+      const reports = await ctx.prisma.report.findMany({
+        where: status ? { status } : undefined,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          reporter: true,
+          discussion: { include: { author: true } },
+          comment: { include: { author: true } },
+        },
+      });
 
-        return reports.map((r) => ({
-          ...r,
-          createdAt: r.createdAt.toISOString(),
-        }));
-      } catch {
-        // Fallback
-        return Array.from(memoryDb.reports.values()).map((r) => ({
-          ...r,
-          createdAt: r.createdAt.toISOString(),
-          reporter: memoryDb.users.get(r.reporterId)!,
-          discussion: r.discussionId ? memoryDb.discussions.get(r.discussionId) : null,
-          comment: r.commentId ? memoryDb.comments.get(r.commentId) : null,
-        }));
-      }
+      return reports.map((r) => ({
+        ...r,
+        createdAt: r.createdAt.toISOString(),
+      }));
     },
   },
 
@@ -673,94 +397,44 @@ export const resolvers = {
     ) => {
       const validated = registerSchema.parse(args);
 
-      // Try PostgreSQL first
-      try {
-        const existing = await ctx.prisma.user.findFirst({
-          where: {
-            OR: [{ email: validated.email }, { username: validated.username }],
-          },
-        });
-        if (existing) {
-          if (existing.email === validated.email) throw new Error('Email is already registered');
-          throw new Error('Username is already taken');
-        }
+      const existing = await ctx.prisma.user.findFirst({
+        where: {
+          OR: [{ email: validated.email }, { username: validated.username }],
+        },
+      });
 
-        const passwordHash = await hashPassword(validated.password);
-        const user = await ctx.prisma.user.create({
-          data: {
-            email: validated.email,
-            username: validated.username,
-            displayName: validated.displayName,
-            passwordHash,
-            avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${validated.username}`,
-          },
-        });
+      if (existing) {
+        if (existing.email === validated.email) throw new Error('Email is already registered');
+        throw new Error('Username is already taken');
+      }
 
-        const token = signToken({
-          userId: user.id,
-          email: user.email,
-          username: user.username,
-          role: user.role,
-        });
-
-        return {
-          token,
-          user: {
-            ...user,
-            createdAt: user.createdAt.toISOString(),
-            discussionsCount: 0,
-            commentsCount: 0,
-          },
-        };
-      } catch (dbErr: unknown) {
-        const msg = (dbErr as Error).message;
-        if (msg === 'Email is already registered' || msg === 'Username is already taken') {
-          throw dbErr;
-        }
-
-        // Graceful fallback to memoryDb when PostgreSQL is not running
-        const existingMem = Array.from(memoryDb.users.values()).find(
-          (u) => u.email === validated.email || u.username === validated.username
-        );
-        if (existingMem) {
-          if (existingMem.email === validated.email) throw new Error('Email is already registered');
-          throw new Error('Username is already taken');
-        }
-
-        const passwordHash = await hashPassword(validated.password);
-        const newUserId = `usr_${Date.now()}`;
-        const newUser: MockUser = {
-          id: newUserId,
+      const passwordHash = await hashPassword(validated.password);
+      const user = await ctx.prisma.user.create({
+        data: {
           email: validated.email,
           username: validated.username,
           displayName: validated.displayName,
           passwordHash,
           avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${validated.username}`,
-          role: 'USER',
-          reputation: 10,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
+        },
+      });
 
-        memoryDb.users.set(newUser.id, newUser);
+      const token = signToken({
+        userId: user.id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+      });
 
-        const token = signToken({
-          userId: newUser.id,
-          email: newUser.email,
-          username: newUser.username,
-          role: newUser.role,
-        });
-
-        return {
-          token,
-          user: {
-            ...newUser,
-            createdAt: newUser.createdAt.toISOString(),
-            discussionsCount: 0,
-            commentsCount: 0,
-          },
-        };
-      }
+      return {
+        token,
+        user: {
+          ...user,
+          createdAt: user.createdAt.toISOString(),
+          discussionsCount: 0,
+          commentsCount: 0,
+        },
+      };
     },
 
     login: async (
@@ -770,78 +444,38 @@ export const resolvers = {
     ) => {
       const validated = loginSchema.parse(args);
 
-      // Try PostgreSQL first
-      try {
-        const user = await ctx.prisma.user.findFirst({
-          where: {
-            OR: [{ email: validated.emailOrUsername }, { username: validated.emailOrUsername }],
-          },
-          include: {
-            _count: { select: { discussions: true, comments: true } },
-          },
-        });
+      const user = await ctx.prisma.user.findFirst({
+        where: {
+          OR: [{ email: validated.emailOrUsername }, { username: validated.emailOrUsername }],
+        },
+        include: {
+          _count: { select: { discussions: true, comments: true } },
+        },
+      });
 
-        if (user && user.passwordHash) {
-          const isValid = await comparePassword(validated.password, user.passwordHash);
-          if (isValid) {
-            const token = signToken({
-              userId: user.id,
-              email: user.email,
-              username: user.username,
-              role: user.role,
-            });
-
-            return {
-              token,
-              user: {
-                ...user,
-                createdAt: user.createdAt.toISOString(),
-                discussionsCount: user._count.discussions,
-                commentsCount: user._count.comments,
-              },
-            };
-          }
-        }
-      } catch {
-        // Fallback to memoryDb
-      }
-
-      // MemoryDb check
-      const memUser = Array.from(memoryDb.users.values()).find(
-        (u) =>
-          u.email === validated.emailOrUsername || u.username === validated.emailOrUsername
-      );
-
-      if (!memUser) {
+      if (!user || !user.passwordHash) {
         throw new Error('Invalid email/username or password');
       }
 
-      const isValid = await comparePassword(validated.password, memUser.passwordHash);
+      const isValid = await comparePassword(validated.password, user.passwordHash);
       if (!isValid) {
         throw new Error('Invalid email/username or password');
       }
 
       const token = signToken({
-        userId: memUser.id,
-        email: memUser.email,
-        username: memUser.username,
-        role: memUser.role,
+        userId: user.id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
       });
-
-      const discussionsCount = Array.from(memoryDb.discussions.values()).filter(
-        (d) => d.authorId === memUser.id
-      ).length;
-      const commentsCount = Array.from(memoryDb.comments.values()).filter(
-        (c) => c.authorId === memUser.id
-      ).length;
 
       return {
         token,
         user: {
-          ...memUser,
-          createdAt: memUser.createdAt.toISOString(),
-          discussionsCount,
-          commentsCount,
+          ...user,
+          createdAt: user.createdAt.toISOString(),
+          discussionsCount: user._count.discussions,
+          commentsCount: user._count.comments,
         },
       };
     },
@@ -862,11 +496,12 @@ export const resolvers = {
       const randomSuffix = Math.random().toString(36).substring(2, 7);
       const slug = `${baseSlug}-${randomSuffix}`;
 
-      try {
+      // Transaction: create tags and discussion atomically
+      const result = await ctx.prisma.$transaction(async (tx) => {
         const tagRecords = await Promise.all(
           validated.tags.map(async (t) => {
             const tagSlug = slugify(t);
-            return ctx.prisma.tag.upsert({
+            return tx.tag.upsert({
               where: { slug: tagSlug },
               update: { postCount: { increment: 1 } },
               create: { name: t, slug: tagSlug, postCount: 1 },
@@ -874,12 +509,12 @@ export const resolvers = {
           })
         );
 
-        const discussion = await ctx.prisma.discussion.create({
+        return await tx.discussion.create({
           data: {
             title: validated.title,
             content: validated.content,
             slug,
-            authorId: ctx.currentUser.userId,
+            authorId: ctx.currentUser!.userId,
             tags: {
               create: tagRecords.map((t) => ({ tagId: t.id })),
             },
@@ -889,69 +524,19 @@ export const resolvers = {
             tags: { include: { tag: true } },
           },
         });
+      });
 
-        return {
-          ...discussion,
-          createdAt: discussion.createdAt.toISOString(),
-          updatedAt: discussion.updatedAt.toISOString(),
-          tags: discussion.tags.map((t) => t.tag),
-          userVote: null,
-          isBookmarked: false,
-        };
-      } catch {
-        // Fallback to memoryDb
-        const tagIds: string[] = [];
-        validated.tags.forEach((name) => {
-          const tSlug = slugify(name);
-          let existingTag = Array.from(memoryDb.tags.values()).find((t) => t.slug === tSlug);
-          if (!existingTag) {
-            existingTag = {
-              id: `tag_${Date.now()}_${Math.random()}`,
-              name,
-              slug: tSlug,
-              description: `Discussions about #${name}`,
-              postCount: 1,
-              createdAt: new Date(),
-            };
-            memoryDb.tags.set(existingTag.id, existingTag);
-          } else {
-            existingTag.postCount += 1;
-          }
-          tagIds.push(existingTag.id);
-        });
+      // Invalidate relevant cache tags/keys
+      ctx.cache.del('discussions:latest').catch(() => {});
 
-        const newPost: MockDiscussion = {
-          id: `disc_${Date.now()}`,
-          title: validated.title,
-          content: validated.content,
-          slug,
-          pinned: false,
-          solved: false,
-          score: 1,
-          upvotesCount: 1,
-          downvotesCount: 0,
-          commentsCount: 0,
-          viewsCount: 1,
-          authorId: ctx.currentUser.userId,
-          tagIds,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-
-        memoryDb.discussions.set(newPost.id, newPost);
-        const author = memoryDb.users.get(ctx.currentUser.userId)!;
-        const postTags = tagIds.map((id) => memoryDb.tags.get(id)).filter(Boolean);
-
-        return {
-          ...newPost,
-          createdAt: newPost.createdAt.toISOString(),
-          updatedAt: newPost.updatedAt.toISOString(),
-          author,
-          tags: postTags,
-          userVote: null,
-          isBookmarked: false,
-        };
-      }
+      return {
+        ...result,
+        createdAt: result.createdAt.toISOString(),
+        updatedAt: result.updatedAt.toISOString(),
+        tags: result.tags.map((t) => t.tag),
+        userVote: null,
+        isBookmarked: false,
+      };
     },
 
     updateDiscussion: async (
@@ -962,17 +547,17 @@ export const resolvers = {
       if (!ctx.currentUser) throw new Error('Authentication required');
       const validated = updateDiscussionSchema.parse(args);
 
-      try {
-        const existing = await ctx.prisma.discussion.findUnique({ where: { id: validated.id } });
-        if (!existing) throw new Error('Discussion not found');
-        if (existing.authorId !== ctx.currentUser.userId && ctx.currentUser.role !== 'ADMIN') {
-          throw new Error('You do not have permission to edit this discussion');
-        }
+      const existing = await ctx.prisma.discussion.findUnique({ where: { id: validated.id } });
+      if (!existing) throw new Error('Discussion not found');
+      if (existing.authorId !== ctx.currentUser.userId && ctx.currentUser.role !== 'ADMIN') {
+        throw new Error('You do not have permission to edit this discussion');
+      }
 
+      const updated = await ctx.prisma.$transaction(async (tx) => {
         const tagRecords = await Promise.all(
           validated.tags.map(async (t) => {
             const tagSlug = slugify(t);
-            return ctx.prisma.tag.upsert({
+            return tx.tag.upsert({
               where: { slug: tagSlug },
               update: {},
               create: { name: t, slug: tagSlug, postCount: 1 },
@@ -980,9 +565,9 @@ export const resolvers = {
           })
         );
 
-        await ctx.prisma.postTag.deleteMany({ where: { discussionId: validated.id } });
+        await tx.postTag.deleteMany({ where: { discussionId: validated.id } });
 
-        const updated = await ctx.prisma.discussion.update({
+        return await tx.discussion.update({
           where: { id: validated.id },
           data: {
             title: validated.title,
@@ -991,41 +576,27 @@ export const resolvers = {
           },
           include: { author: true, tags: { include: { tag: true } } },
         });
+      });
 
-        return {
-          ...updated,
-          createdAt: updated.createdAt.toISOString(),
-          updatedAt: updated.updatedAt.toISOString(),
-          tags: updated.tags.map((t) => t.tag),
-        };
-      } catch {
-        // Fallback
-        const d = memoryDb.discussions.get(validated.id);
-        if (!d) throw new Error('Discussion not found');
-        d.title = validated.title;
-        d.content = validated.content;
-        d.updatedAt = new Date();
-
-        return {
-          ...d,
-          createdAt: d.createdAt.toISOString(),
-          updatedAt: d.updatedAt.toISOString(),
-          author: memoryDb.users.get(d.authorId)!,
-          tags: d.tagIds.map((id) => memoryDb.tags.get(id)).filter(Boolean),
-        };
-      }
+      return {
+        ...updated,
+        createdAt: updated.createdAt.toISOString(),
+        updatedAt: updated.updatedAt.toISOString(),
+        tags: updated.tags.map((t) => t.tag),
+      };
     },
 
     deleteDiscussion: async (_: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       if (!ctx.currentUser) throw new Error('Authentication required');
 
-      try {
-        await ctx.prisma.discussion.delete({ where: { id } });
-        return true;
-      } catch {
-        memoryDb.discussions.delete(id);
-        return true;
+      const existing = await ctx.prisma.discussion.findUnique({ where: { id } });
+      if (!existing) throw new Error('Discussion not found');
+      if (existing.authorId !== ctx.currentUser.userId && ctx.currentUser.role !== 'ADMIN') {
+        throw new Error('You do not have permission to delete this discussion');
       }
+
+      await ctx.prisma.discussion.delete({ where: { id } });
+      return true;
     },
 
     createComment: async (
@@ -1036,66 +607,39 @@ export const resolvers = {
       if (!ctx.currentUser) throw new Error('Authentication required');
       const validated = createCommentSchema.parse(args);
 
-      try {
+      const comment = await ctx.prisma.$transaction(async (tx) => {
         let depth = 0;
         if (validated.parentId) {
-          const parent = await ctx.prisma.comment.findUnique({ where: { id: validated.parentId } });
+          const parent = await tx.comment.findUnique({ where: { id: validated.parentId } });
           if (parent) depth = Math.min(parent.depth + 1, 5);
         }
 
-        const comment = await ctx.prisma.comment.create({
+        const created = await tx.comment.create({
           data: {
             content: validated.content,
             discussionId: validated.discussionId,
             parentId: validated.parentId || null,
             depth,
-            authorId: ctx.currentUser.userId,
+            authorId: ctx.currentUser!.userId,
           },
           include: { author: true, discussion: true },
         });
 
-        await ctx.prisma.discussion.update({
+        await tx.discussion.update({
           where: { id: validated.discussionId },
           data: { commentsCount: { increment: 1 } },
         });
 
-        return {
-          ...comment,
-          createdAt: comment.createdAt.toISOString(),
-          updatedAt: comment.updatedAt.toISOString(),
-          replies: [],
-          userVote: null,
-        };
-      } catch {
-        // Fallback
-        const newCmt: MockComment = {
-          id: `cmt_${Date.now()}`,
-          content: validated.content,
-          score: 1,
-          upvotesCount: 1,
-          downvotesCount: 0,
-          depth: validated.parentId ? 1 : 0,
-          isAccepted: false,
-          authorId: ctx.currentUser.userId,
-          discussionId: validated.discussionId,
-          parentId: validated.parentId || null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
+        return created;
+      });
 
-        memoryDb.comments.set(newCmt.id, newCmt);
-        const post = memoryDb.discussions.get(validated.discussionId);
-        if (post) post.commentsCount += 1;
-
-        return {
-          ...newCmt,
-          createdAt: newCmt.createdAt.toISOString(),
-          updatedAt: newCmt.updatedAt.toISOString(),
-          author: memoryDb.users.get(ctx.currentUser.userId)!,
-          replies: [],
-          userVote: null,
-        };
-      }
+      return {
+        ...comment,
+        createdAt: comment.createdAt.toISOString(),
+        updatedAt: comment.updatedAt.toISOString(),
+        replies: [],
+        userVote: null,
+      };
     },
 
     updateComment: async (
@@ -1106,45 +650,44 @@ export const resolvers = {
       if (!ctx.currentUser) throw new Error('Authentication required');
       const validated = updateCommentSchema.parse(args);
 
-      try {
-        const updated = await ctx.prisma.comment.update({
-          where: { id: validated.id },
-          data: { content: validated.content },
-          include: { author: true },
-        });
-
-        return {
-          ...updated,
-          createdAt: updated.createdAt.toISOString(),
-          updatedAt: updated.updatedAt.toISOString(),
-          replies: [],
-        };
-      } catch {
-        const c = memoryDb.comments.get(validated.id);
-        if (!c) throw new Error('Comment not found');
-        c.content = validated.content;
-        c.updatedAt = new Date();
-
-        return {
-          ...c,
-          createdAt: c.createdAt.toISOString(),
-          updatedAt: c.updatedAt.toISOString(),
-          author: memoryDb.users.get(c.authorId)!,
-          replies: [],
-        };
+      const existing = await ctx.prisma.comment.findUnique({ where: { id: validated.id } });
+      if (!existing) throw new Error('Comment not found');
+      if (existing.authorId !== ctx.currentUser.userId && ctx.currentUser.role !== 'ADMIN') {
+        throw new Error('You do not have permission to edit this comment');
       }
+
+      const updated = await ctx.prisma.comment.update({
+        where: { id: validated.id },
+        data: { content: validated.content },
+        include: { author: true },
+      });
+
+      return {
+        ...updated,
+        createdAt: updated.createdAt.toISOString(),
+        updatedAt: updated.updatedAt.toISOString(),
+        replies: [],
+      };
     },
 
     deleteComment: async (_: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       if (!ctx.currentUser) throw new Error('Authentication required');
 
-      try {
-        await ctx.prisma.comment.delete({ where: { id } });
-        return true;
-      } catch {
-        memoryDb.comments.delete(id);
-        return true;
+      const existing = await ctx.prisma.comment.findUnique({ where: { id } });
+      if (!existing) throw new Error('Comment not found');
+      if (existing.authorId !== ctx.currentUser.userId && ctx.currentUser.role !== 'ADMIN') {
+        throw new Error('You do not have permission to delete this comment');
       }
+
+      await ctx.prisma.$transaction(async (tx) => {
+        await tx.comment.delete({ where: { id } });
+        await tx.discussion.update({
+          where: { id: existing.discussionId },
+          data: { commentsCount: { decrement: 1 } },
+        });
+      });
+
+      return true;
     },
 
     voteDiscussion: async (
@@ -1154,38 +697,50 @@ export const resolvers = {
     ) => {
       if (!ctx.currentUser) throw new Error('Authentication required');
 
-      try {
-        const existing = await ctx.prisma.vote.findUnique({
+      return await ctx.prisma.$transaction(async (tx) => {
+        const existing = await tx.vote.findUnique({
           where: {
             userId_discussionId: {
-              userId: ctx.currentUser.userId,
+              userId: ctx.currentUser!.userId,
               discussionId,
             },
           },
         });
 
         let scoreDelta = 0;
+        let upvotesDelta = 0;
+        let downvotesDelta = 0;
         let newUserVote: 'UPVOTE' | 'DOWNVOTE' | null = type;
 
         if (existing) {
           if (existing.type === type) {
-            await ctx.prisma.vote.delete({ where: { id: existing.id } });
+            await tx.vote.delete({ where: { id: existing.id } });
             scoreDelta = type === 'UPVOTE' ? -1 : 1;
+            upvotesDelta = type === 'UPVOTE' ? -1 : 0;
+            downvotesDelta = type === 'DOWNVOTE' ? -1 : 0;
             newUserVote = null;
           } else {
-            await ctx.prisma.vote.update({ where: { id: existing.id }, data: { type } });
+            await tx.vote.update({ where: { id: existing.id }, data: { type } });
             scoreDelta = type === 'UPVOTE' ? 2 : -2;
+            upvotesDelta = type === 'UPVOTE' ? 1 : -1;
+            downvotesDelta = type === 'UPVOTE' ? -1 : 1;
           }
         } else {
-          await ctx.prisma.vote.create({
-            data: { userId: ctx.currentUser.userId, discussionId, type },
+          await tx.vote.create({
+            data: { userId: ctx.currentUser!.userId, discussionId, type },
           });
           scoreDelta = type === 'UPVOTE' ? 1 : -1;
+          upvotesDelta = type === 'UPVOTE' ? 1 : 0;
+          downvotesDelta = type === 'DOWNVOTE' ? 1 : 0;
         }
 
-        const updated = await ctx.prisma.discussion.update({
+        const updated = await tx.discussion.update({
           where: { id: discussionId },
-          data: { score: { increment: scoreDelta } },
+          data: {
+            score: { increment: scoreDelta },
+            upvotesCount: { increment: upvotesDelta },
+            downvotesCount: { increment: downvotesDelta },
+          },
         });
 
         return {
@@ -1194,36 +749,7 @@ export const resolvers = {
           upvotesCount: updated.upvotesCount,
           downvotesCount: updated.downvotesCount,
         };
-      } catch {
-        // Fallback
-        const d = memoryDb.discussions.get(discussionId);
-        if (!d) throw new Error('Discussion not found');
-
-        const key = `vote_${ctx.currentUser.userId}_${discussionId}`;
-        const existing = memoryDb.votes.get(key);
-
-        if (existing) {
-          if (existing.type === type) {
-            memoryDb.votes.delete(key);
-            d.score += type === 'UPVOTE' ? -1 : 1;
-            return { score: d.score, userVote: null, upvotesCount: d.upvotesCount, downvotesCount: d.downvotesCount };
-          } else {
-            existing.type = type;
-            d.score += type === 'UPVOTE' ? 2 : -2;
-            return { score: d.score, userVote: type, upvotesCount: d.upvotesCount, downvotesCount: d.downvotesCount };
-          }
-        } else {
-          memoryDb.votes.set(key, {
-            id: key,
-            userId: ctx.currentUser.userId,
-            discussionId,
-            type,
-            createdAt: new Date(),
-          });
-          d.score += type === 'UPVOTE' ? 1 : -1;
-          return { score: d.score, userVote: type, upvotesCount: d.upvotesCount, downvotesCount: d.downvotesCount };
-        }
-      }
+      });
     },
 
     voteComment: async (
@@ -1233,38 +759,50 @@ export const resolvers = {
     ) => {
       if (!ctx.currentUser) throw new Error('Authentication required');
 
-      try {
-        const existing = await ctx.prisma.vote.findUnique({
+      return await ctx.prisma.$transaction(async (tx) => {
+        const existing = await tx.vote.findUnique({
           where: {
             userId_commentId: {
-              userId: ctx.currentUser.userId,
+              userId: ctx.currentUser!.userId,
               commentId,
             },
           },
         });
 
         let scoreDelta = 0;
+        let upvotesDelta = 0;
+        let downvotesDelta = 0;
         let newUserVote: 'UPVOTE' | 'DOWNVOTE' | null = type;
 
         if (existing) {
           if (existing.type === type) {
-            await ctx.prisma.vote.delete({ where: { id: existing.id } });
+            await tx.vote.delete({ where: { id: existing.id } });
             scoreDelta = type === 'UPVOTE' ? -1 : 1;
+            upvotesDelta = type === 'UPVOTE' ? -1 : 0;
+            downvotesDelta = type === 'DOWNVOTE' ? -1 : 0;
             newUserVote = null;
           } else {
-            await ctx.prisma.vote.update({ where: { id: existing.id }, data: { type } });
+            await tx.vote.update({ where: { id: existing.id }, data: { type } });
             scoreDelta = type === 'UPVOTE' ? 2 : -2;
+            upvotesDelta = type === 'UPVOTE' ? 1 : -1;
+            downvotesDelta = type === 'UPVOTE' ? -1 : 1;
           }
         } else {
-          await ctx.prisma.vote.create({
-            data: { userId: ctx.currentUser.userId, commentId, type },
+          await tx.vote.create({
+            data: { userId: ctx.currentUser!.userId, commentId, type },
           });
           scoreDelta = type === 'UPVOTE' ? 1 : -1;
+          upvotesDelta = type === 'UPVOTE' ? 1 : 0;
+          downvotesDelta = type === 'DOWNVOTE' ? 1 : 0;
         }
 
-        const updated = await ctx.prisma.comment.update({
+        const updated = await tx.comment.update({
           where: { id: commentId },
-          data: { score: { increment: scoreDelta } },
+          data: {
+            score: { increment: scoreDelta },
+            upvotesCount: { increment: upvotesDelta },
+            downvotesCount: { increment: downvotesDelta },
+          },
         });
 
         return {
@@ -1273,35 +811,7 @@ export const resolvers = {
           upvotesCount: updated.upvotesCount,
           downvotesCount: updated.downvotesCount,
         };
-      } catch {
-        const c = memoryDb.comments.get(commentId);
-        if (!c) throw new Error('Comment not found');
-
-        const key = `vote_c_${ctx.currentUser.userId}_${commentId}`;
-        const existing = memoryDb.votes.get(key);
-
-        if (existing) {
-          if (existing.type === type) {
-            memoryDb.votes.delete(key);
-            c.score += type === 'UPVOTE' ? -1 : 1;
-            return { score: c.score, userVote: null, upvotesCount: c.upvotesCount, downvotesCount: c.downvotesCount };
-          } else {
-            existing.type = type;
-            c.score += type === 'UPVOTE' ? 2 : -2;
-            return { score: c.score, userVote: type, upvotesCount: c.upvotesCount, downvotesCount: c.downvotesCount };
-          }
-        } else {
-          memoryDb.votes.set(key, {
-            id: key,
-            userId: ctx.currentUser.userId,
-            commentId,
-            type,
-            createdAt: new Date(),
-          });
-          c.score += type === 'UPVOTE' ? 1 : -1;
-          return { score: c.score, userVote: type, upvotesCount: c.upvotesCount, downvotesCount: c.downvotesCount };
-        }
-      }
+      });
     },
 
     toggleBookmark: async (
@@ -1311,39 +821,23 @@ export const resolvers = {
     ) => {
       if (!ctx.currentUser) throw new Error('Authentication required');
 
-      try {
-        const existing = await ctx.prisma.bookmark.findUnique({
-          where: {
-            userId_discussionId: {
-              userId: ctx.currentUser.userId,
-              discussionId,
-            },
-          },
-        });
-
-        if (existing) {
-          await ctx.prisma.bookmark.delete({ where: { id: existing.id } });
-          return { isBookmarked: false };
-        } else {
-          await ctx.prisma.bookmark.create({
-            data: { userId: ctx.currentUser.userId, discussionId },
-          });
-          return { isBookmarked: true };
-        }
-      } catch {
-        const key = `bm_${ctx.currentUser.userId}_${discussionId}`;
-        if (memoryDb.bookmarks.has(key)) {
-          memoryDb.bookmarks.delete(key);
-          return { isBookmarked: false };
-        } else {
-          memoryDb.bookmarks.set(key, {
-            id: key,
+      const existing = await ctx.prisma.bookmark.findUnique({
+        where: {
+          userId_discussionId: {
             userId: ctx.currentUser.userId,
             discussionId,
-            createdAt: new Date(),
-          });
-          return { isBookmarked: true };
-        }
+          },
+        },
+      });
+
+      if (existing) {
+        await ctx.prisma.bookmark.delete({ where: { id: existing.id } });
+        return { isBookmarked: false };
+      } else {
+        await ctx.prisma.bookmark.create({
+          data: { userId: ctx.currentUser.userId, discussionId },
+        });
+        return { isBookmarked: true };
       }
     },
 
@@ -1354,17 +848,21 @@ export const resolvers = {
     ) => {
       if (!ctx.currentUser) throw new Error('Authentication required');
 
-      try {
-        const discussion = await ctx.prisma.discussion.findUnique({ where: { id: discussionId } });
-        if (!discussion) throw new Error('Discussion not found');
+      const discussion = await ctx.prisma.discussion.findUnique({ where: { id: discussionId } });
+      if (!discussion) throw new Error('Discussion not found');
 
-        const comment = await ctx.prisma.comment.findUnique({ where: { id: commentId } });
-        if (!comment) throw new Error('Comment not found');
+      if (discussion.authorId !== ctx.currentUser.userId && ctx.currentUser.role !== 'ADMIN') {
+        throw new Error('Only the discussion author can accept a solution');
+      }
 
+      const comment = await ctx.prisma.comment.findUnique({ where: { id: commentId } });
+      if (!comment) throw new Error('Comment not found');
+
+      return await ctx.prisma.$transaction(async (tx) => {
         const isCurrentlyAccepted = discussion.solvedCommentId === commentId;
         if (isCurrentlyAccepted) {
-          await ctx.prisma.comment.update({ where: { id: commentId }, data: { isAccepted: false } });
-          const updated = await ctx.prisma.discussion.update({
+          await tx.comment.update({ where: { id: commentId }, data: { isAccepted: false } });
+          const updated = await tx.discussion.update({
             where: { id: discussionId },
             data: { solved: false, solvedCommentId: null },
             include: { author: true, tags: { include: { tag: true } } },
@@ -1377,8 +875,8 @@ export const resolvers = {
           };
         }
 
-        await ctx.prisma.comment.update({ where: { id: commentId }, data: { isAccepted: true } });
-        const updated = await ctx.prisma.discussion.update({
+        await tx.comment.update({ where: { id: commentId }, data: { isAccepted: true } });
+        const updated = await tx.discussion.update({
           where: { id: discussionId },
           data: { solved: true, solvedCommentId: commentId },
           include: { author: true, tags: { include: { tag: true } } },
@@ -1390,23 +888,7 @@ export const resolvers = {
           updatedAt: updated.updatedAt.toISOString(),
           tags: updated.tags.map((t) => t.tag),
         };
-      } catch {
-        const d = memoryDb.discussions.get(discussionId);
-        const c = memoryDb.comments.get(commentId);
-        if (!d || !c) throw new Error('Not found');
-
-        c.isAccepted = !c.isAccepted;
-        d.solved = c.isAccepted;
-        d.solvedCommentId = c.isAccepted ? commentId : null;
-
-        return {
-          ...d,
-          createdAt: d.createdAt.toISOString(),
-          updatedAt: d.updatedAt.toISOString(),
-          author: memoryDb.users.get(d.authorId)!,
-          tags: d.tagIds.map((id) => memoryDb.tags.get(id)).filter(Boolean),
-        };
-      }
+      });
     },
 
     reportContent: async (
@@ -1417,62 +899,35 @@ export const resolvers = {
       if (!ctx.currentUser) throw new Error('Authentication required');
       const validated = reportSchema.parse(args);
 
-      try {
-        const report = await ctx.prisma.report.create({
-          data: {
-            reason: validated.reason,
-            details: validated.details || null,
-            discussionId: validated.discussionId || null,
-            commentId: validated.commentId || null,
-            reporterId: ctx.currentUser.userId,
-          },
-          include: { reporter: true },
-        });
-
-        return { ...report, createdAt: report.createdAt.toISOString() };
-      } catch {
-        const rep = {
-          id: `rep_${Date.now()}`,
+      const report = await ctx.prisma.report.create({
+        data: {
           reason: validated.reason,
           details: validated.details || null,
-          status: 'PENDING' as const,
-          reporterId: ctx.currentUser.userId,
           discussionId: validated.discussionId || null,
           commentId: validated.commentId || null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-        memoryDb.reports.set(rep.id, rep);
-        return { ...rep, createdAt: rep.createdAt.toISOString() };
-      }
+          reporterId: ctx.currentUser.userId,
+        },
+        include: { reporter: true },
+      });
+
+      return { ...report, createdAt: report.createdAt.toISOString() };
     },
 
     markNotificationAsRead: async (_: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       if (!ctx.currentUser) throw new Error('Authentication required');
-      try {
-        await ctx.prisma.notification.updateMany({
-          where: { id, userId: ctx.currentUser.userId },
-          data: { read: true },
-        });
-      } catch {
-        const n = memoryDb.notifications.get(id);
-        if (n && n.userId === ctx.currentUser.userId) n.read = true;
-      }
+      await ctx.prisma.notification.updateMany({
+        where: { id, userId: ctx.currentUser.userId },
+        data: { read: true },
+      });
       return true;
     },
 
     markAllNotificationsAsRead: async (_: unknown, __: unknown, ctx: GraphQLContext) => {
       if (!ctx.currentUser) throw new Error('Authentication required');
-      try {
-        await ctx.prisma.notification.updateMany({
-          where: { userId: ctx.currentUser.userId, read: false },
-          data: { read: true },
-        });
-      } catch {
-        Array.from(memoryDb.notifications.values())
-          .filter((n) => n.userId === ctx.currentUser?.userId)
-          .forEach((n) => (n.read = true));
-      }
+      await ctx.prisma.notification.updateMany({
+        where: { userId: ctx.currentUser.userId, read: false },
+        data: { read: true },
+      });
       return true;
     },
 
@@ -1489,55 +944,28 @@ export const resolvers = {
     ) => {
       if (!ctx.currentUser) throw new Error('Authentication required');
 
-      try {
-        const updated = await ctx.prisma.user.update({
-          where: { id: ctx.currentUser.userId },
-          data: {
-            ...(args.displayName !== undefined ? { displayName: args.displayName } : {}),
-            ...(args.bio !== undefined ? { bio: args.bio } : {}),
-            ...(args.avatarUrl !== undefined ? { avatarUrl: args.avatarUrl } : {}),
-            ...(args.githubUrl !== undefined ? { githubUrl: args.githubUrl } : {}),
-            ...(args.websiteUrl !== undefined ? { websiteUrl: args.websiteUrl } : {}),
+      const updated = await ctx.prisma.user.update({
+        where: { id: ctx.currentUser.userId },
+        data: {
+          ...(args.displayName !== undefined ? { displayName: args.displayName } : {}),
+          ...(args.bio !== undefined ? { bio: args.bio } : {}),
+          ...(args.avatarUrl !== undefined ? { avatarUrl: args.avatarUrl } : {}),
+          ...(args.githubUrl !== undefined ? { githubUrl: args.githubUrl } : {}),
+          ...(args.websiteUrl !== undefined ? { websiteUrl: args.websiteUrl } : {}),
+        },
+        include: {
+          _count: {
+            select: { discussions: true, comments: true },
           },
-          include: {
-            _count: {
-              select: { discussions: true, comments: true },
-            },
-          },
-        });
+        },
+      });
 
-        return {
-          ...updated,
-          discussionsCount: updated._count.discussions,
-          commentsCount: updated._count.comments,
-          createdAt: updated.createdAt.toISOString(),
-        };
-      } catch {
-        // MemoryDb Fallback
-        const user = memoryDb.users.get(ctx.currentUser.userId);
-        if (!user) throw new Error('User not found');
-
-        if (args.displayName !== undefined) user.displayName = args.displayName;
-        if (args.bio !== undefined) user.bio = args.bio;
-        if (args.avatarUrl !== undefined) user.avatarUrl = args.avatarUrl;
-        if (args.githubUrl !== undefined) user.githubUrl = args.githubUrl;
-        if (args.websiteUrl !== undefined) user.websiteUrl = args.websiteUrl;
-        user.updatedAt = new Date();
-
-        const discussionsCount = Array.from(memoryDb.discussions.values()).filter(
-          (d) => d.authorId === user.id
-        ).length;
-        const commentsCount = Array.from(memoryDb.comments.values()).filter(
-          (c) => c.authorId === user.id
-        ).length;
-
-        return {
-          ...user,
-          discussionsCount,
-          commentsCount,
-          createdAt: user.createdAt.toISOString(),
-        };
-      }
+      return {
+        ...updated,
+        discussionsCount: updated._count.discussions,
+        commentsCount: updated._count.comments,
+        createdAt: updated.createdAt.toISOString(),
+      };
     },
 
     updateReportStatus: async (
@@ -1546,42 +974,40 @@ export const resolvers = {
       ctx: GraphQLContext
     ) => {
       if (!ctx.currentUser || (ctx.currentUser.role !== 'ADMIN' && ctx.currentUser.role !== 'MODERATOR')) {
-        throw new Error('Access denied');
+        throw new Error('Access denied: Moderator or Admin privileges required');
       }
 
-      try {
-        const updated = await ctx.prisma.report.update({
-          where: { id },
-          data: { status },
-          include: { reporter: true },
-        });
-        return { ...updated, createdAt: updated.createdAt.toISOString() };
-      } catch {
-        const r = memoryDb.reports.get(id);
-        if (r) r.status = status;
-        return {
-          ...r,
-          createdAt: new Date().toISOString(),
-          reporter: memoryDb.users.get(ctx.currentUser.userId)!,
-        };
-      }
+      const updated = await ctx.prisma.report.update({
+        where: { id },
+        data: { status },
+        include: { reporter: true },
+      });
+      return { ...updated, createdAt: updated.createdAt.toISOString() };
     },
   },
 
   User: {
-    discussionsCount: (parent: { id?: string; discussionsCount?: number; _count?: { discussions: number } }) => {
+    discussionsCount: async (
+      parent: { id?: string; discussionsCount?: number; _count?: { discussions: number } },
+      _: unknown,
+      ctx: GraphQLContext
+    ) => {
       if (typeof parent.discussionsCount === 'number') return parent.discussionsCount;
       if (parent._count?.discussions !== undefined) return parent._count.discussions;
       if (parent.id) {
-        return Array.from(memoryDb.discussions.values()).filter((d) => d.authorId === parent.id).length;
+        return await ctx.prisma.discussion.count({ where: { authorId: parent.id } });
       }
       return 0;
     },
-    commentsCount: (parent: { id?: string; commentsCount?: number; _count?: { comments: number } }) => {
+    commentsCount: async (
+      parent: { id?: string; commentsCount?: number; _count?: { comments: number } },
+      _: unknown,
+      ctx: GraphQLContext
+    ) => {
       if (typeof parent.commentsCount === 'number') return parent.commentsCount;
       if (parent._count?.comments !== undefined) return parent._count.comments;
       if (parent.id) {
-        return Array.from(memoryDb.comments.values()).filter((c) => c.authorId === parent.id).length;
+        return await ctx.prisma.comment.count({ where: { authorId: parent.id } });
       }
       return 0;
     },

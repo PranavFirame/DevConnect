@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
+    "prisma:migrate": "prisma migrate deploy",
     "prisma:seed": "node prisma/seed.mjs",
+    "import:datastore": "node scripts/import-datastore.mjs",
     "benchmark": "node scripts/benchmark.mjs"
   },
   "prisma": {
