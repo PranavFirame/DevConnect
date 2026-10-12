@@ -56,7 +56,12 @@ export default function LoginPage() {
         router.push('/');
       }
     } catch (err: unknown) {
-      setError((err as Error).message || 'Invalid credentials');
+      const msg = (err as Error).message || '';
+      if (msg.toLowerCase().includes('unexpected error') || !msg) {
+        setError('Invalid username or password');
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }

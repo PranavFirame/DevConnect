@@ -158,8 +158,8 @@ export default function SettingsPage() {
         </div>
 
         {saved && (
-          <div className="flex items-center gap-2 p-4 rounded-2xl bg-[#42ed91]/20 border-2 border-zinc-900 text-zinc-900 dark:text-zinc-100 text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#18181b]">
-            <CheckCircle2 className="h-4 w-4 text-[#42ed91]" />
+          <div className="flex items-center gap-2.5 p-4 rounded-2xl bg-[#42ed91] border-2 border-zinc-900 text-zinc-900 text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#18181b]">
+            <CheckCircle2 className="h-5 w-5 text-zinc-900 shrink-0" />
             <span>Profile and picture updated successfully!</span>
           </div>
         )}
@@ -296,7 +296,7 @@ export default function SettingsPage() {
           <div className="pt-2 flex items-center justify-between border-t-2 border-zinc-100 dark:border-zinc-800">
             <Link
               href={`/users/${user?.username}`}
-              className="text-xs font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-400 hover:text-zinc-900"
+              className="text-xs font-black uppercase tracking-wider text-zinc-600 dark:text-zinc-400 hover:text-white dark:hover:text-white transition-colors"
             >
               ← View Public Profile
             </Link>

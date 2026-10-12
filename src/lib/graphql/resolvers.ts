@@ -1,3 +1,4 @@
+import { GraphQLError } from 'graphql';
 import { GraphQLContext } from './context';
 import { hashPassword, comparePassword, signToken } from '@/lib/auth';
 import {
@@ -442,7 +443,11 @@ export const resolvers = {
       args: { emailOrUsername: string; password: string },
       ctx: GraphQLContext
     ) => {
-      const validated = loginSchema.parse(args);
+      const parseResult = loginSchema.safeParse(args);
+      if (!parseResult.success) {
+        throw new GraphQLError('Invalid data');
+      }
+      const validated = parseResult.data;
 
       const user = await ctx.prisma.user.findFirst({
         where: {
@@ -454,12 +459,12 @@ export const resolvers = {
       });
 
       if (!user || !user.passwordHash) {
-        throw new Error('Invalid email/username or password');
+        throw new GraphQLError('Invalid username or password');
       }
 
       const isValid = await comparePassword(validated.password, user.passwordHash);
       if (!isValid) {
-        throw new Error('Invalid email/username or password');
+        throw new GraphQLError('Invalid username or password');
       }
 
       const token = signToken({
