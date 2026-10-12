@@ -12,10 +12,15 @@ declare global {
 
 /**
  * Fast circuit-breaker check for PostgreSQL availability.
- * If PostgreSQL is down or unreachable, returns false immediately
- * to avoid 4,000ms+ connection timeout penalties on every GraphQL operation.
+ * If DATABASE_URL points to a remote database (e.g. Neon, Supabase),
+ * it tests connectivity to that remote host/port.
+ * If DATABASE_URL points to localhost, it does a fast 100ms local check.
+ * If PostgreSQL is down, returns false immediately to avoid blocking timeouts.
  */
 export async function isDatabaseAvailable(): Promise<boolean> {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) return false;
+
   const now = Date.now();
   const lastCheck = globalThis.lastPostgresCheckGlobal ?? 0;
 
@@ -28,11 +33,28 @@ export async function isDatabaseAvailable(): Promise<boolean> {
     return globalThis.isPostgresAvailableGlobal;
   }
 
-  // Fast TCP socket ping to localhost:5432 (returns in <1ms with ECONNREFUSED if PostgreSQL is not running)
+  // Parse host and port from DATABASE_URL
+  let host = '127.0.0.1';
+  let port = 5432;
+  let isRemote = false;
+
+  try {
+    const parsed = new URL(dbUrl);
+    host = parsed.hostname || '127.0.0.1';
+    port = parsed.port ? parseInt(parsed.port, 10) : 5432;
+    isRemote = host !== 'localhost' && host !== '127.0.0.1' && !host.startsWith('192.168.') && !host.startsWith('10.');
+  } catch {
+    // Keep defaults
+  }
+
+  // Fast TCP socket ping to host:port
+  // Remote databases get 1500ms timeout; localhost gets 100ms timeout
+  const timeoutMs = isRemote ? 1500 : 100;
+
   const isPortOpen = await new Promise<boolean>((resolve) => {
     try {
       const socket = new net.Socket();
-      socket.setTimeout(100);
+      socket.setTimeout(timeoutMs);
       socket.on('connect', () => {
         socket.destroy();
         resolve(true);
@@ -45,7 +67,7 @@ export async function isDatabaseAvailable(): Promise<boolean> {
         socket.destroy();
         resolve(false);
       });
-      socket.connect(5432, '127.0.0.1');
+      socket.connect(port, host);
     } catch {
       resolve(false);
     }
@@ -68,8 +90,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 /**
  * Transparent Circuit Breaker Proxy for Prisma.
- * Bypasses 4,000ms+ TCP connect hangs whenever PostgreSQL is unreachable,
- * immediately failing with a catchable error so the resolver falls back to memoryDb in <0.1ms.
+ * Bypasses connection hangs whenever PostgreSQL is unreachable,
+ * immediately failing with a catchable error so the resolver falls back to memoryDb.
  */
 function createCircuitBreakerPrisma(client: PrismaClient): PrismaClient {
   return new Proxy(client, {
