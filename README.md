@@ -257,4 +257,4 @@ mutation CreatePost {
 ---
 
 ## 📄 License
-MIT License. Built for the modern developer community.
+DevConnect License. Built for the modern developer community.
