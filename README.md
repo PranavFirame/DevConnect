@@ -2,24 +2,23 @@
 
 > **Where Developers Connect, Discuss, and Build Together.**
 
-DevConnect is a full-stack, production-minded developer community platform designed for software engineers to publish technical discussions, ask architectural questions, share code snippets with live syntax highlighting, engage in threaded conversations, bookmark valuable solutions, and discover knowledge through fast search.
+DevConnect is a modern, production-grade developer community platform designed for software engineers to publish technical discussions, ask architectural questions, share code snippets with live syntax highlighting, engage in threaded conversations, bookmark valuable solutions, and discover knowledge through fast search.
 
 ---
 
 ## 🌟 Key Features
 
 - **🔐 Authentication & User Accounts**
-  - Email & password registration with `bcryptjs` password hashing (10 salt rounds).
+  - Email & username sign-in with password hashing via `bcryptjs`.
   - Stateless JWT authentication signed on the server and verified via request context / HTTP-only cookies.
   - Role-based authorization (`USER`, `MODERATOR`, `ADMIN`).
-  - Developer profiles with avatar seed, GitHub link, biographical details, and reputation tracking.
+  - Developer profiles with avatar upload / robotic avatar generator, bio, and portfolio links.
 
 - **💬 Discussion System**
   - Create, view, edit, and delete rich technical posts.
   - Markdown editor with live preview, syntax highlighting, word/char counts, and formatting toolbar.
   - Tagging system with tag catalogs and filtered feeds.
   - Post sorting: **Latest**, **Top Discussions (Popular)**, and **Unanswered**.
-  - Server-side authorization checks on all operations.
 
 - **🧵 Recursive Threaded Comments**
   - Multi-level nested replies with depth bounds (up to 5 levels) to prevent infinite UI nesting.
@@ -28,8 +27,8 @@ DevConnect is a full-stack, production-minded developer community platform desig
 
 - **⚡ GraphQL API (GraphQL Yoga)**
   - Schema-driven endpoint at `/api/graphql` integrated into Next.js App Router Route Handler.
+  - Unmasked, user-friendly validation errors (`GraphQLError`) for client safety and clarity.
   - Modular schema, type definitions, resolvers, context creation, and Zod validation.
-  - Server-side authorization extracting user identity from Bearer token or cookie headers.
 
 - **🔍 Search & Discovery**
   - Full-text search across titles, discussion bodies, author handles, and tags.
@@ -40,27 +39,27 @@ DevConnect is a full-stack, production-minded developer community platform desig
   - Real-time in-app activity notifications for replies and accepted answers.
   - Content reporting workflow with a protected moderation center (`/moderation`) for moderators and admins.
 
-- **🚀 Optional Upstash Redis Caching & Resilient Fallback**
-  - Seamless caching for popular tags and read-heavy queries.
-  - **Zero-downtime fallback**: If Upstash credentials are not set, DevConnect automatically runs an in-memory cache with zero errors.
+- **⚡ Resilient Caching with Upstash Redis**
+  - Upstash Redis caching via REST API for popular tags and read-heavy queries.
+  - Safe, non-blocking cache layer: failures never cause application data loss.
 
 - **🩺 Health Check Endpoint**
-  - Accessible at `/api/health`, reporting database connectivity, latency, memory RSS, and uptime.
+  - Accessible at `/api/health`, reporting live Neon PostgreSQL database connectivity (`SELECT 1`), Upstash Redis status, latency, memory RSS, and uptime.
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Technology Stack & Cloud Infrastructure
 
-| Layer | Technologies |
-|---|---|
-| **Frontend** | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4 |
-| **Icons** | Lucide Icons (`lucide-react`) |
-| **API** | GraphQL Yoga 5, GraphQL 17 |
-| **Database & ORM** | PostgreSQL, Prisma ORM 6.19 (Stable) |
-| **Authentication** | JSON Web Tokens (`jsonwebtoken`), `bcryptjs`, Cookies |
-| **Validation** | Zod |
-| **Caching** | `@upstash/redis` with in-memory fallback |
-| **Testing** | Vitest 5 |
+| Layer | Technology | Service Provider / Link |
+|---|---|---|
+| **Frontend & API** | Next.js 16 (App Router), React 19, Tailwind CSS v4 | [Vercel](https://vercel.com) |
+| **API Layer** | GraphQL Yoga 5, GraphQL 17 | Next.js Route Handlers |
+| **Primary Database** | Serverless PostgreSQL | [Neon](https://console.neon.tech/) |
+| **ORM & Migrations**| Prisma ORM 6.19 (with Connection Pooling & Direct URL) | `@prisma/client` |
+| **Cache Layer** | Serverless Redis (REST API) | [Upstash Redis](https://console.upstash.com/redis) |
+| **Authentication** | JSON Web Tokens (`jsonwebtoken`), `bcryptjs`, Cookies | Custom auth |
+| **Validation** | Zod | Runtime validation |
+| **Testing** | Vitest 5 | Integration & Unit Tests |
 
 ---
 
@@ -70,15 +69,17 @@ DevConnect is a full-stack, production-minded developer community platform desig
 DevConnect/
 ├── prisma/
 │   ├── schema.prisma        # Database schema (User, Discussion, Comment, Tag, Vote, etc.)
+│   ├── migrations/          # Baselined database migrations (0_init)
 │   └── seed.mjs             # Development database seed script
 ├── scripts/
-│   └── benchmark.mjs        # Query latency and response size benchmark script
+│   ├── benchmark.mjs        # Query latency and response size benchmark script
+│   └── import-datastore.mjs # Idempotent data migration utility from JSON to Neon
 ├── src/
 │   ├── app/                 # Next.js App Router
 │   │   ├── api/
 │   │   │   ├── auth/session/route.ts  # Cookie sync endpoint
 │   │   │   ├── graphql/route.ts       # GraphQL Yoga route handler
-│   │   │   └── health/route.ts        # System status & DB latency monitor
+│   │   │   └── health/route.ts        # Live Neon & Redis health monitor
 │   │   ├── bookmarks/page.tsx         # User saved posts
 │   │   ├── discussions/
 │   │   │   ├── page.tsx               # Filterable discussion catalog
@@ -100,12 +101,12 @@ DevConnect/
 │   │   └── ThreadedComments.tsx
 │   ├── lib/
 │   │   ├── auth/            # Password hashing, JWT signing & AuthContext
-│   │   ├── cache/           # Upstash Redis & in-memory cache adapter
-│   │   ├── db/              # Prisma singleton client
+│   │   ├── cache/           # Upstash Redis client with resilient fallback
+│   │   ├── db/              # Standard Next.js singleton PrismaClient
 │   │   ├── graphql/         # GraphQL schema, context & resolvers
 │   │   ├── validation/      # Zod input schemas
 │   │   └── utils.ts         # Utility functions
-│   └── tests/               # Vitest unit & integration test suites
+│   └── tests/               # Vitest test suite (Auth & Neon PostgreSQL integration)
 ├── .env.example             # Documented environment variables
 ├── package.json             # NPM package scripts and dependencies
 ├── tsconfig.json            # Strict TypeScript configuration
@@ -114,102 +115,107 @@ DevConnect/
 
 ---
 
-## 🚀 Getting Started Locally
+## ☁️ Cloud Infrastructure & Deployment
 
-### 1. Prerequisites
-- **Node.js**: v20 or v22 LTS (Verified on `v22.23.2`)
-- **npm**: v10 or v11 (Verified on `11.7.0`)
-- **PostgreSQL**: Local PostgreSQL server, Docker container, or free cloud database (Neon.tech / Supabase / Railway).
+### 1. Primary Database: [Neon PostgreSQL](https://console.neon.tech/)
+Neon provides serverless PostgreSQL with connection pooling:
+- **Runtime Pooled Connection (`DATABASE_URL`)**: Uses pgBouncer pooler (`-pooler` hostname) to handle serverless connection bursts from Vercel.
+- **Migration Direct Connection (`DIRECT_URL`)**: Direct connection to Neon compute without the pooler, required for `prisma migrate deploy`.
 
-### 2. Installation
-Clone the repository and install dependencies:
+### 2. Cache: [Upstash Redis](https://console.upstash.com/redis)
+Upstash provides serverless Redis with low latency and REST API access:
+- Uses `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`.
+- Redis is used strictly for caching read-heavy endpoints (such as top tags and discussions); all mutations and persistent data reside directly in Neon.
 
+### 3. Hosting & Serverless Compute: [Vercel](https://vercel.com)
+The frontend and GraphQL API are deployed on Vercel:
+- Automated builds run `prisma generate && prisma migrate deploy && next build`.
+- Ephemeral serverless functions connect directly to Neon via the singleton Prisma client.
+
+---
+
+## 🔑 Environment Variables Configuration
+
+Set these environment variables locally in your `.env` file and in the **Vercel Dashboard** under **Project Settings → Environment Variables**:
+
+| Variable | Description | Example / Format |
+|---|---|---|
+| `DATABASE_URL` | Neon **Pooled** connection string (pgBouncer) | `postgresql://neondb_owner:***@ep-***-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require` |
+| `DIRECT_URL` | Neon **Direct** connection string (non-pooler) | `postgresql://neondb_owner:***@ep-***.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require` |
+| `JWT_SECRET` | Secret key for signing session tokens | `your-secure-jwt-secret-key-32-chars-or-more` |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL | `https://***.upstash.io` |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST access token | `AX...` |
+| `NEXT_PUBLIC_APP_URL` | Application base URL | `https://your-domain.vercel.app` (or `http://localhost:3000`) |
+
+> **Note for Vercel**: Ensure `DATABASE_URL` and `DIRECT_URL` are enabled across all three environments (**Production**, **Preview**, and **Development**).
+
+---
+
+## 🚀 Local Development Setup
+
+### 1. Clone & Install
 ```bash
-git clone https://github.com/your-username/DevConnect.git
+git clone https://github.com/PranavFirame/DevConnect.git
 cd DevConnect
 npm install --legacy-peer-deps
 ```
 
-### 3. Environment Variables
-Copy `.env.example` to `.env`:
-
+### 2. Configure Environment
+Copy `.env.example` to `.env` and fill in your Neon and Upstash credentials:
 ```bash
 cp .env.example .env
 ```
 
-Ensure your `.env` contains:
-```env
-PORT=3000
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/devconnect?schema=public"
-JWT_SECRET="your-super-secret-jwt-key"
-SESSION_COOKIE_NAME="devconnect_token"
-
-# Optional (Leave blank to use internal memory cache)
-UPSTASH_REDIS_REST_URL=""
-UPSTASH_REDIS_REST_TOKEN=""
-```
-
-### 4. Database Initialization & Seeding
-Push the schema to your PostgreSQL database and run the seed script:
-
+### 3. Generate Prisma Client & Run Migrations
 ```bash
-# Push Prisma schema to your PostgreSQL database
-npm run prisma:push
-
-# Generate Prisma Client
+# Generate the Prisma client
 npm run prisma:generate
 
-# Populate realistic test discussions, tags, and sample users
+# Apply pending migrations
+npm run prisma:migrate
+```
+
+### 4. (Optional) Import Legacy Mock Data or Seed
+```bash
+# Idempotently migrate mock records from data-store.json into Neon
+npm run import:datastore
+
+# Or seed sample test users and discussions
 npm run prisma:seed
 ```
 
-#### Seed Demo Credentials (Development Only)
-| Role | Username | Email | Password |
-|---|---|---|---|
-| **Admin** | `alexdev` | `admin@devconnect.io` | `devpass123` |
-| **Moderator** | `sarah_codes` | `moderator@devconnect.io` | `devpass123` |
-| **Developer** | `marcus_k` | `marcus@devconnect.io` | `devpass123` |
-| **Developer** | `elena_dev` | `elena@devconnect.io` | `devpass123` |
-
-### 5. Running the Application
-Start the development server:
-
+### 5. Start Development Server
 ```bash
 npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ---
 
 ## 🧪 Testing & Verification
 
-Run the test suite with Vitest:
-
+Run the automated test suite (including Neon PostgreSQL persistence tests):
 ```bash
 npm run test
 ```
 
-Run a production compilation build:
-
+Run a production build check:
 ```bash
 npm run build
 ```
 
-Run the performance and GraphQL query latency benchmark:
-
+Run query latency benchmarks:
 ```bash
 npm run benchmark
 ```
 
 ---
 
-## 📡 GraphQL Yoga API Examples
+## 📡 GraphQL API Reference
 
-The GraphQL playground and endpoint is active at `/api/graphql`.
+The GraphQL endpoint is available at `/api/graphql`.
 
-### 1. Fetch Discussions Feed
+### Example: Query Discussions
 ```graphql
 query GetDiscussions {
   discussions(limit: 10, sort: "newest") {
@@ -233,13 +239,13 @@ query GetDiscussions {
 }
 ```
 
-### 2. Create Discussion
+### Example: Create Discussion
 ```graphql
 mutation CreatePost {
   createDiscussion(
-    title: "How to use Prisma with Server Components"
-    content: "Detailed content explaining patterns..."
-    tags: ["nextjs", "postgresql", "prisma"]
+    title: "Best practices for Serverless PostgreSQL with Prisma"
+    content: "Detailed post on connection pooling and migrations..."
+    tags: ["nextjs", "postgresql", "neon", "prisma"]
   ) {
     id
     slug
@@ -247,36 +253,6 @@ mutation CreatePost {
   }
 }
 ```
-
-### 3. Vote on Discussion
-```graphql
-mutation Upvote {
-  voteDiscussion(discussionId: "DISC_ID_HERE", type: UPVOTE) {
-    score
-    userVote
-  }
-}
-```
-
----
-
-## 🚢 Free-Tier Deployment Guide (Vercel + Neon)
-
-DevConnect is architected to run completely free using popular hosting and database providers:
-
-1. **Database (Neon.tech)**:
-   - Create a free project at [Neon](https://neon.tech) (0.5 GiB free storage, 1 compute branch).
-   - Copy the Pooled Connection String (`postgresql://...`).
-2. **Hosting (Vercel Hobby Tier)**:
-   - Connect your GitHub repository to [Vercel](https://vercel.com).
-   - In Environment Variables, set:
-     - `DATABASE_URL` = your Neon pooled connection string.
-     - `JWT_SECRET` = random 64-character secret.
-     - `NEXT_PUBLIC_APP_URL` = your Vercel deployment URL (e.g. `https://devconnect.vercel.app`).
-   - Run `npx prisma db push` before first deployment or add a build command: `npx prisma generate && next build`.
-3. **Optional Redis (Upstash Free Tier)**:
-   - Create a free Redis database on [Upstash](https://upstash.com).
-   - Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in Vercel.
 
 ---
 
